@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Raxar</string>
+    <string name="action_add_note">Add a note</string>
+    <string name="title">Title</string>
+    <string name="body">Body</string>
+    <string name="children_title">Children</string>
+</resources>
