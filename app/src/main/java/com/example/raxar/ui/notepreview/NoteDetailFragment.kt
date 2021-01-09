@@ -5,17 +5,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.example.raxar.R
-import com.example.raxar.data.NoteCommit
-import com.example.raxar.data.NoteDto
 import com.example.raxar.ui.commons.NoteListPreviewAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.note_detail_fragment.*
-import java.time.ZonedDateTime
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class NoteDetailFragment : Fragment() {
+
+    private val args: NoteDetailFragmentArgs by navArgs()
+    private val viewModel: NoteDetailViewModel by viewModels()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -26,33 +31,15 @@ class NoteDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val note = NoteDto(
-            1L,
-            0L,
-            NoteCommit(
-                1L,
-                1L,
-                0L,
-                ZonedDateTime.now(),
-                "",
-                "Title",
-                "body"
-            ),
-            mapOf(
-                1L to NoteCommit(
-                    1L,
-                    1L,
-                    0L,
-                    ZonedDateTime.now(),
-                    "",
-                    "Title",
-                    "body"
-                )
-            )
-        )
-
-        title.setText(note.currentNoteCommit.title)
-        body.setText(note.currentNoteCommit.body)
+        if (args.noteId > 0L) {
+            lifecycleScope.launch {
+                viewModel.getNote(args.noteId)
+                viewModel.note.observe(viewLifecycleOwner) {
+                    title.setText(it.currentNoteCommit.title)
+                    body.setText(it.currentNoteCommit.body)
+                }
+            }
+        }
 
         children.adapter = NoteListPreviewAdapter {
             findNavController().navigate(

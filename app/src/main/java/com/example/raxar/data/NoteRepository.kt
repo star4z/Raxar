@@ -9,10 +9,8 @@ import javax.inject.Singleton
 class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
 
     fun getNotes(): Flow<List<NoteDto>> {
-        return noteDao.getNotesWithCommits().map { list: List<NoteWithCommits> ->
-            list.map { noteWithCommits ->
-                noteWithCommitsToNoteDto(noteWithCommits)
-            }
+        return noteDao.getNotesWithCommits().map {
+            it.map(this::noteWithCommitsToNoteDto)
         }
     }
 
@@ -21,7 +19,8 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
         return NoteDto(
             noteWithCommits.note.noteId,
             noteWithCommits.note.parentId,
-            noteCommits[noteWithCommits.note.currentNoteCommitId] ?: error("Note ${noteWithCommits.note.noteId} contained no commits!"),
+            noteCommits[noteWithCommits.note.currentNoteCommitId]
+                ?: error("Note ${noteWithCommits.note.noteId} contained no commits!"),
             noteCommits
         )
     }
@@ -41,5 +40,9 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
             ),
             noteDto.noteCommits.values.toList()
         )
+    }
+
+    fun getNote(id: Long): Flow<NoteDto> {
+        return noteDao.getNotesWithCommits(id).map(this::noteWithCommitsToNoteDto)
     }
 }

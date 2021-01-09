@@ -26,4 +26,8 @@ interface NoteDao {
     @Transaction
     @Query("SELECT * FROM notes")
     fun getNotesWithCommits(): Flow<List<NoteWithCommits>>
+
+    @Transaction
+    @Query("SELECT * FROM notes WHERE id=:id LIMIT 1")
+    fun getNotesWithCommits(id: Long): Flow<NoteWithCommits>
 }
