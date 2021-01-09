@@ -7,7 +7,9 @@ apply plugin: 'dagger.hilt.android.plugin'
 
 android {
     compileSdkVersion 29
-
+    buildFeatures {
+        viewBinding true
+    }
     defaultConfig {
         applicationId "com.example.raxar"
         minSdkVersion 21

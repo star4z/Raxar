@@ -9,7 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.example.raxar.R
+import com.example.raxar.databinding.NoteDetailFragmentBinding
 import com.example.raxar.ui.commons.NoteListPreviewAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.note_detail_fragment.*
@@ -20,12 +20,20 @@ class NoteDetailFragment : Fragment() {
 
     private val args: NoteDetailFragmentArgs by navArgs()
     private val viewModel: NoteDetailViewModel by viewModels()
+    private var _binding: NoteDetailFragmentBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.note_detail_fragment, container, false)
+    ): View {
+        _binding = NoteDetailFragmentBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -35,8 +43,8 @@ class NoteDetailFragment : Fragment() {
             lifecycleScope.launch {
                 viewModel.getNote(args.noteId)
                 viewModel.note.observe(viewLifecycleOwner) {
-                    title.setText(it.currentNoteCommit.title)
-                    body.setText(it.currentNoteCommit.body)
+                    binding.title.setText(it.currentNoteCommit.title)
+                    binding.body.setText(it.currentNoteCommit.body)
                 }
             }
         }
@@ -45,6 +53,10 @@ class NoteDetailFragment : Fragment() {
             findNavController().navigate(
                 NoteDetailFragmentDirections.actionNoteDetailFragmentSelf(it.noteId)
             )
+        }
+
+        binding.toolbar.setNavigationOnClickListener {
+            findNavController().navigateUp()
         }
     }
 }
