@@ -1,9 +1,10 @@
 package com.example.raxar
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.example.raxar.ui.main.NoteListFragment
+import androidx.appcompat.app.AppCompatActivity
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
