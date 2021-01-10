@@ -4,5 +4,5 @@ data class NoteDto(
     val noteId: Long,
     val parentId: Long,
     val currentNoteCommit: NoteCommit,
-    val noteCommits: Map<Long, NoteCommit> // Mapped by id
+    val noteCommits: List<NoteCommit> // Mapped by id
 )

@@ -39,13 +39,11 @@ class NoteDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (args.noteId > 0L) {
-            lifecycleScope.launch {
-                viewModel.getNote(args.noteId)
-                viewModel.note.observe(viewLifecycleOwner) {
-                    binding.title.setText(it.currentNoteCommit.title)
-                    binding.body.setText(it.currentNoteCommit.body)
-                }
+        lifecycleScope.launch {
+            viewModel.getNote(args.noteId)
+            viewModel.note.observe(viewLifecycleOwner) {
+                binding.title.setText(it.currentNoteCommit.title)
+                binding.body.setText(it.currentNoteCommit.body)
             }
         }
 
@@ -57,6 +55,18 @@ class NoteDetailFragment : Fragment() {
 
         binding.toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        lifecycleScope.launch {
+            viewModel.saveNote(
+                NoteDetailDto(
+                    binding.title.toString(),
+                    binding.body.toString()
+                )
+            )
         }
     }
 }

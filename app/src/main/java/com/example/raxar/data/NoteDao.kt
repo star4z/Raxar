@@ -12,13 +12,13 @@ interface NoteDao {
     fun getCurrentNoteCommits(noteIds: List<Long>): Flow<List<NoteCommit>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun saveNote(vararg note: Note)
+    suspend fun saveNote(note: Note): Long
 
-    /**
-     * When attempting to
-     */
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun saveNoteCommit(vararg noteCommits: NoteCommit)
+    suspend fun saveNoteCommit(noteCommit: NoteCommit): Long
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun saveNoteCommits(noteCommits: List<NoteCommit>): List<Long>
 
     @Delete
     fun deleteNote(note: Note)

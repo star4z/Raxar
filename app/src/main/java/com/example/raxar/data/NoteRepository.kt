@@ -15,11 +15,11 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
     }
 
     private fun noteWithCommitsToNoteDto(noteWithCommits: NoteWithCommits): NoteDto {
-        val noteCommits = noteWithCommits.noteCommits.map { it.noteCommitId to it }.toMap()
+        val noteCommits = noteWithCommits.noteCommits
         return NoteDto(
             noteWithCommits.note.noteId,
             noteWithCommits.note.parentId,
-            noteCommits[noteWithCommits.note.currentNoteCommitId]
+            noteCommits.find { noteCommit -> noteCommit.noteCommitId == noteWithCommits.note.currentNoteCommitId }
                 ?: error("Note ${noteWithCommits.note.noteId} contained no commits!"),
             noteCommits
         )
@@ -27,8 +27,18 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
 
     suspend fun saveNote(noteDto: NoteDto) {
         val noteWithCommits = noteDtoToNoteWithCommits(noteDto)
-        noteDao.saveNote(noteWithCommits.note)
-        noteDao.saveNoteCommit(*noteWithCommits.noteCommits.toTypedArray())
+        val noteRowId = noteDao.saveNote(noteWithCommits.note)
+        noteDao.saveNoteCommits(noteWithCommits.noteCommits.map { noteCommit ->
+            NoteCommit(
+                noteCommit.noteCommitId,
+                noteRowId,
+                noteCommit.parentNoteCommitId,
+                noteCommit.time,
+                noteCommit.color,
+                noteCommit.title,
+                noteCommit.body
+            )
+        })
     }
 
     private fun noteDtoToNoteWithCommits(noteDto: NoteDto): NoteWithCommits {
@@ -38,7 +48,7 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
                 noteDto.parentId,
                 noteDto.currentNoteCommit.noteCommitId
             ),
-            noteDto.noteCommits.values.toList()
+            noteDto.noteCommits
         )
     }
 
