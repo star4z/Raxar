@@ -63,8 +63,8 @@ class NoteDetailFragment : Fragment() {
         lifecycleScope.launch {
             viewModel.saveNote(
                 NoteDetailDto(
-                    binding.title.toString(),
-                    binding.body.toString()
+                    binding.title.text.toString(),
+                    binding.body.text.toString()
                 )
             )
         }
