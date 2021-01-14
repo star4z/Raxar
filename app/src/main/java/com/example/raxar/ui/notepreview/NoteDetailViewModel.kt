@@ -42,7 +42,7 @@ class NoteDetailViewModel @ViewModelInject constructor(private val noteRepositor
                 it.noteId,
                 it.parentId,
                 noteCommit,
-                it.noteCommits
+                it.noteCommits + noteCommit
             )
         } ?: run {
             val noteCommit = NoteCommit(

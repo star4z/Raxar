@@ -2,6 +2,7 @@ package com.example.raxar.data
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.time.ZonedDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -20,7 +21,15 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
             noteWithCommits.note.noteId,
             noteWithCommits.note.parentId,
             noteCommits.find { noteCommit -> noteCommit.noteCommitId == noteWithCommits.note.currentNoteCommitId }
-                ?: error("Note ${noteWithCommits.note.noteId} contained no commits!"),
+                ?: NoteCommit(
+                    0L,
+                    0L,
+                    0L,
+                    ZonedDateTime.now(),
+                    "",
+                    "",
+                    ""
+                ),
             noteCommits
         )
     }
@@ -28,17 +37,26 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
     suspend fun saveNote(noteDto: NoteDto) {
         val noteWithCommits = noteDtoToNoteWithCommits(noteDto)
         val noteRowId = noteDao.saveNote(noteWithCommits.note)
-        noteDao.saveNoteCommits(noteWithCommits.noteCommits.map { noteCommit ->
-            NoteCommit(
-                noteCommit.noteCommitId,
-                noteRowId,
-                noteCommit.parentNoteCommitId,
-                noteCommit.time,
-                noteCommit.color,
-                noteCommit.title,
-                noteCommit.body
+        val noteCommitId = with(noteDto.currentNoteCommit) {
+            noteDao.saveNoteCommit(
+                NoteCommit(
+                    noteCommitId,
+                    noteRowId,
+                    parentNoteCommitId,
+                    time,
+                    color,
+                    title,
+                    body
+                )
             )
-        })
+        }
+        noteDao.saveNote(
+            Note(
+                noteRowId,
+                noteWithCommits.note.parentId,
+                noteCommitId
+            )
+        )
     }
 
     private fun noteDtoToNoteWithCommits(noteDto: NoteDto): NoteWithCommits {
