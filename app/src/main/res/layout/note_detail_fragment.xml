@@ -50,12 +50,14 @@
                 android:hint="@string/title"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
+                android:imeOptions="actionNext"
+                android:maxLines="1"
                 app:layout_constraintTop_toBottomOf="@id/note_header" />
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/body"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:layout_margin="16dp"
                 android:gravity="top"
                 android:hint="@string/body"
@@ -65,6 +67,14 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/title" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/save"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:text="@string/save"
+                app:layout_constraintTop_toBottomOf="@id/body" />
+
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/children_header"
                 style="@style/TextAppearance.MaterialComponents.Headline5"
@@ -73,7 +83,7 @@
                 android:text="@string/children_title"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/body" />
+                app:layout_constraintTop_toBottomOf="@id/save" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/children"
