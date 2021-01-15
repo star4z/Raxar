@@ -8,6 +8,7 @@ import androidx.lifecycle.asLiveData
 import com.example.raxar.data.NoteCommit
 import com.example.raxar.data.NoteDto
 import com.example.raxar.data.NoteRepository
+import java.security.SecureRandom
 import java.time.ZonedDateTime
 
 class NoteDetailViewModel @ViewModelInject constructor(private val noteRepository: NoteRepository) :
@@ -22,7 +23,7 @@ class NoteDetailViewModel @ViewModelInject constructor(private val noteRepositor
         }
     }
 
-    suspend fun saveNote(noteDetailDto: NoteDetailDto) {
+    fun saveNote(noteDetailDto: NoteDetailDto) {
         val noteDto = getNoteDto(noteDetailDto)
         noteRepository.saveNote(noteDto).also { getNote(noteDto.noteId) }
     }
@@ -30,7 +31,7 @@ class NoteDetailViewModel @ViewModelInject constructor(private val noteRepositor
     private fun getNoteDto(noteDetailDto: NoteDetailDto): NoteDto {
         note.value?.let {
             val noteCommit = NoteCommit(
-                0L,
+                SecureRandom().nextLong(),
                 it.noteId,
                 it.currentNoteCommit.noteCommitId,
                 ZonedDateTime.now(),
@@ -45,9 +46,10 @@ class NoteDetailViewModel @ViewModelInject constructor(private val noteRepositor
                 it.noteCommits + noteCommit
             )
         } ?: run {
+            val noteId = SecureRandom().nextLong()
             val noteCommit = NoteCommit(
-                0L,
-                0L,
+                SecureRandom().nextLong(),
+                noteId,
                 0L,
                 ZonedDateTime.now(),
                 "",
@@ -55,7 +57,7 @@ class NoteDetailViewModel @ViewModelInject constructor(private val noteRepositor
                 noteDetailDto.body
             )
             return NoteDto(
-                0L,
+                noteId,
                 0L,
                 noteCommit,
                 listOf(noteCommit)

@@ -45,6 +45,9 @@ class NoteDetailFragment : Fragment() {
                 binding.title.setText(it.currentNoteCommit.title)
                 binding.body.setText(it.currentNoteCommit.body)
             }
+            binding.save.setOnClickListener {
+                saveNote()
+            }
         }
 
         children.adapter = NoteListPreviewAdapter {
@@ -57,16 +60,19 @@ class NoteDetailFragment : Fragment() {
             findNavController().navigateUp()
         }
     }
+//
+//    override fun onStop() {
+//        super.onStop()
+//        saveNote()
+//    }
 
-    override fun onPause() {
-        super.onPause()
-        lifecycleScope.launch {
-            viewModel.saveNote(
-                NoteDetailDto(
-                    binding.title.text.toString(),
-                    binding.body.text.toString()
-                )
+    private fun saveNote() {
+        val title = binding.title.text.toString()
+        val body = binding.body.text.toString()
+        viewModel.saveNote(
+            NoteDetailDto(
+                title, body
             )
-        }
+        )
     }
 }
