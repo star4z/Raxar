@@ -7,21 +7,33 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.example.raxar.R
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
+import com.example.raxar.databinding.NoteListFragmentBinding
 import com.example.raxar.ui.commons.NoteListPreviewAdapter
+import com.example.raxar.util.SwipeCallback
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.note_list_fragment.*
+
 
 @AndroidEntryPoint
 class NotesFragment : Fragment() {
 
     private val viewModel: NotesViewModel by viewModels()
+    private var _binding: NoteListFragmentBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return inflater.inflate(R.layout.note_list_fragment, container, false)
+        _binding = NoteListFragmentBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -32,7 +44,26 @@ class NotesFragment : Fragment() {
                 NotesFragmentDirections.actionNoteListFragmentToNoteDetailFragment(it.noteId)
             )
         }
-        recyclerview.adapter = adapter
+        binding.recyclerview.adapter = adapter
+
+        val swipeCallback: SwipeCallback = object : SwipeCallback(requireContext()) {
+            override fun getMovementFlags(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder
+            ): Int {
+                return makeMovementFlags(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT)
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                if (direction == ItemTouchHelper.LEFT || direction == ItemTouchHelper.RIGHT) {
+                    val removedNote = adapter.removeItem(viewHolder.adapterPosition)
+                    viewModel.deleteNote(removedNote)
+                }
+            }
+        }
+
+        val itemTouchHelper = ItemTouchHelper(swipeCallback)
+        itemTouchHelper.attachToRecyclerView(binding.recyclerview)
 
         viewModel.notes.observe(viewLifecycleOwner) {
             adapter.submitList(it)

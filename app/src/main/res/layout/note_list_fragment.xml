@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".ui.notepreview.NoteDetailFragment">
+    tools:context=".ui.notes.NotesFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
@@ -43,6 +43,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:itemCount="7"
+                android:nestedScrollingEnabled="false"
                 tools:listitem="@layout/note_list_preview" />
 
             <com.google.android.material.button.MaterialButton

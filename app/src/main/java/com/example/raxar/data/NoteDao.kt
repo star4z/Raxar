@@ -21,7 +21,7 @@ interface NoteDao {
     suspend fun saveNoteCommits(noteCommits: List<NoteCommit>): List<Long>
 
     @Delete
-    fun deleteNote(note: Note)
+    suspend fun deleteNote(note: Note)
 
     @Transaction
     @Query("SELECT * FROM notes")

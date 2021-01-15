@@ -58,4 +58,9 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
     fun getNote(id: Long): Flow<NoteDto> {
         return noteDao.getNotesWithCommits(id).map(this::noteWithCommitsToNoteDto)
     }
+
+    suspend fun deleteNote(noteDto: NoteDto) {
+        val noteWithCommits = noteDtoToNoteWithCommits(noteDto)
+        noteDao.deleteNote(noteWithCommits.note)
+    }
 }

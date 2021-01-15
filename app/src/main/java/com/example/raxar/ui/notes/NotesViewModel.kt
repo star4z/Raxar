@@ -4,14 +4,19 @@ import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.example.raxar.data.NoteDto
 import com.example.raxar.data.NoteRepository
+import kotlinx.coroutines.launch
 
 class NotesViewModel @ViewModelInject constructor(private val noteRepository: NoteRepository) :
     ViewModel() {
     val notes: LiveData<List<NoteDto>> = noteRepository.getNotes().asLiveData()
 
-    suspend fun addNote(noteDto: NoteDto) {
-        noteRepository.saveNote(noteDto)
+    fun deleteNote(noteDto: NoteDto) {
+        viewModelScope.launch {
+            noteRepository.deleteNote(noteDto)
+        }
     }
+
 }

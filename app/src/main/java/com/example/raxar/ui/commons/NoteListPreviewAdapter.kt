@@ -30,6 +30,14 @@ class NoteListPreviewAdapter(val itemCallback: (NoteDto) -> Unit) :
             itemCallback(item)
         }
     }
+
+    fun removeItem(adapterPosition: Int): NoteDto {
+        val list = mutableListOf(*currentList.toTypedArray())
+        val noteDto = list.removeAt(adapterPosition)
+        submitList(list)
+        notifyItemRemoved(adapterPosition)
+        return noteDto
+    }
 }
 
 private class NoteDiffCallback : DiffUtil.ItemCallback<NoteDto>() {
