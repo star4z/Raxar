@@ -24,6 +24,7 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
             noteWithCommits.note.noteId,
             noteWithCommits.note.parentId,
             noteCommits.find { noteCommit -> noteCommit.noteCommitId == noteWithCommits.note.currentNoteCommitId }
+            //This should never happen but exists here to fail gracefully in the case of a bug
                 ?: NoteCommit(
                     0L,
                     0L,
