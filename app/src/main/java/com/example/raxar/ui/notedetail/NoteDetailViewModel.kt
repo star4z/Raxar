@@ -38,9 +38,7 @@ class NoteDetailViewModel @ViewModelInject constructor(private val noteRepositor
 
     fun saveNote(noteDetailDto: NoteDetailDto): NoteDto {
         val noteDto = getNoteDto(noteDetailDto)
-        noteRepository.saveNote(noteDto).also {
-            getNoteUnconditionally(noteDto.noteId)
-        }
+        noteRepository.saveNote(noteDto)
         return noteDto
     }
 
