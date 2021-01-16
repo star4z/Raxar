@@ -61,8 +61,8 @@ class NoteDetailFragment : Fragment() {
         }
         children.adapter = adapter
 
-        viewModel.childNotes.observe(viewLifecycleOwner) {
-            adapter.submitList(it)
+        viewModel.childNotes.observe(viewLifecycleOwner) { notes ->
+            adapter.submitList(notes.sortedByDescending { noteDto -> noteDto.currentNoteCommit.time })
         }
 
         binding.toolbar.setNavigationOnClickListener {

@@ -65,8 +65,8 @@ class NotesFragment : Fragment() {
         val itemTouchHelper = ItemTouchHelper(swipeCallback)
         itemTouchHelper.attachToRecyclerView(binding.recyclerview)
 
-        viewModel.notes.observe(viewLifecycleOwner) {
-            adapter.submitList(it)
+        viewModel.notes.observe(viewLifecycleOwner) { notes ->
+            adapter.submitList(notes.sortedByDescending { it.currentNoteCommit.time })
         }
 
         add_note.setOnClickListener {
