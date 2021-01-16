@@ -19,10 +19,10 @@ import java.time.ZonedDateTime
 )
 class NoteCommit(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") val noteCommitId: Long = 0,
-    val noteId: Long,
-    val parentNoteCommitId: Long,
-    val time: ZonedDateTime,
-    val color: String,
-    val title: String,
-    val body: String
+    val noteId: Long = 0,
+    val parentNoteCommitId: Long = 0,
+    val time: ZonedDateTime = ZonedDateTime.now(),
+    val color: String = "",
+    val title: String = "",
+    val body: String = ""
 )
