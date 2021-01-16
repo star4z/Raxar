@@ -45,23 +45,25 @@ class NoteDetailViewModel @ViewModelInject constructor(private val noteRepositor
     }
 
     private fun getNoteDto(noteDetailDto: NoteDetailDto): NoteDto {
-        note.value?.let {
+        note.value?.let { noteDto: NoteDto ->
+            //Update note
             val noteCommit = NoteCommit(
                 genId(),
-                it.noteId,
-                it.currentNoteCommit.noteCommitId,
+                noteDto.noteId,
+                noteDto.currentNoteCommit.noteCommitId,
                 ZonedDateTime.now(),
                 "",
                 noteDetailDto.title,
                 noteDetailDto.body
             )
             return NoteDto(
-                it.noteId,
-                it.parentId,
+                noteDto.noteId,
+                noteDto.parentId,
                 noteCommit,
-                it.noteCommits + noteCommit
+                noteDto.noteCommits + noteCommit
             )
         } ?: run {
+            //Create new note
             val noteId = genId()
             val noteCommit = NoteCommit(
                 genId(),
