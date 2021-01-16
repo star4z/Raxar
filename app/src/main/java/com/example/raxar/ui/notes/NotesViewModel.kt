@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 
 class NotesViewModel @ViewModelInject constructor(private val noteRepository: NoteRepository) :
     ViewModel() {
-    val notes: LiveData<List<NoteDto>> = noteRepository.getNotes().asLiveData()
+    val notes: LiveData<List<NoteDto>> = noteRepository.getChildNotes(0L).asLiveData()
 
     fun deleteNote(noteDto: NoteDto) {
         viewModelScope.launch {

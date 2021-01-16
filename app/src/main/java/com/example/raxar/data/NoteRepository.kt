@@ -2,6 +2,7 @@ package com.example.raxar.data
 
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
@@ -61,7 +62,14 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
 
     suspend fun deleteNote(noteDto: NoteDto) {
         val noteWithCommits = noteDtoToNoteWithCommits(noteDto)
+        //Delete note, which deletes commits due to delete cascading.
         noteDao.deleteNote(noteWithCommits.note)
+        noteDao.getNotesWithCommitsForParentId(noteDto.noteId)
+            .collect { notesWithCommits: List<NoteWithCommits> ->
+                notesWithCommits.forEach {
+                    noteDao.deleteNote(it.note)
+                }
+            }
     }
 
     fun getChildNotes(parentId: Long): Flow<List<NoteDto>> {
