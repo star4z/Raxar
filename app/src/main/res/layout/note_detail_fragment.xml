@@ -54,6 +54,7 @@
                 android:singleLine="true"
                 android:imeOptions="actionNext"
                 android:maxLines="1"
+                android:inputType="text|textCapSentences"
                 app:layout_constraintTop_toBottomOf="@id/note_header" />
 
             <com.google.android.material.textfield.TextInputEditText
@@ -67,6 +68,8 @@
                 app:layout_constraintHeight_default="percent"
                 app:layout_constraintHeight_percent=".3"
                 app:layout_constraintStart_toStartOf="parent"
+                android:autoLink="all"
+                android:inputType="text|textMultiLine|textCapSentences"
                 app:layout_constraintTop_toBottomOf="@id/title" />
 
             <com.google.android.material.button.MaterialButton
