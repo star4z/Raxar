@@ -52,10 +52,15 @@ class NoteDetailFragment : Fragment() {
             }
         }
 
-        children.adapter = NoteListPreviewAdapter {
+        val adapter = NoteListPreviewAdapter {
             findNavController().navigate(
                 NoteDetailFragmentDirections.actionNoteDetailFragmentSelf(it.noteId)
             )
+        }
+        children.adapter = adapter
+
+        viewModel.childNotes.observe(viewLifecycleOwner) {
+            adapter.submitList(it)
         }
 
         binding.toolbar.setNavigationOnClickListener {

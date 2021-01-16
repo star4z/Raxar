@@ -14,14 +14,17 @@ import java.time.ZonedDateTime
 class NoteDetailViewModel @ViewModelInject constructor(private val noteRepository: NoteRepository) :
     ViewModel() {
     lateinit var note: LiveData<NoteDto>
+    lateinit var childNotes: LiveData<List<NoteDto>>
 
     private val random = SecureRandom()
 
     fun getNote(id: Long) {
-        note = if (id != 0L) {
-            noteRepository.getNote(id).asLiveData()
+        if (id != 0L) {
+            note = noteRepository.getNote(id).asLiveData()
+            childNotes = noteRepository.getChildNotes(id).asLiveData()
         } else {
-            MutableLiveData()
+            note = MutableLiveData()
+            childNotes = MutableLiveData()
         }
     }
 
