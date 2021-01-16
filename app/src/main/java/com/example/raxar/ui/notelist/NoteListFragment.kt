@@ -1,4 +1,4 @@
-package com.example.raxar.ui.notes
+package com.example.raxar.ui.notelist
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -17,9 +17,9 @@ import kotlinx.android.synthetic.main.note_list_fragment.*
 
 
 @AndroidEntryPoint
-class NotesFragment : Fragment() {
+class NoteListFragment : Fragment() {
 
-    private val viewModel: NotesViewModel by viewModels()
+    private val viewModel: NoteListViewModel by viewModels()
     private var _binding: NoteListFragmentBinding? = null
     private val binding get() = _binding!!
 
@@ -41,7 +41,7 @@ class NotesFragment : Fragment() {
 
         val adapter = NoteListPreviewAdapter {
             findNavController().navigate(
-                NotesFragmentDirections.actionNoteListFragmentToNoteDetailFragment(it.noteId)
+                NoteListFragmentDirections.actionNoteListFragmentToNoteDetailFragment(it.noteId)
             )
         }
         binding.recyclerview.adapter = adapter
@@ -70,7 +70,7 @@ class NotesFragment : Fragment() {
         }
 
         add_note.setOnClickListener {
-            val action = NotesFragmentDirections.actionNoteListFragmentToNoteDetailFragment()
+            val action = NoteListFragmentDirections.actionNoteListFragmentToNoteDetailFragment()
             findNavController().navigate(action)
         }
     }

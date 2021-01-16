@@ -1,4 +1,4 @@
-package com.example.raxar.ui.notepreview
+package com.example.raxar.ui.notedetail
 
 data class NoteDetailDto(
     val title: String,

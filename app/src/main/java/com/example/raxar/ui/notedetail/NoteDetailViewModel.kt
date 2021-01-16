@@ -1,4 +1,4 @@
-package com.example.raxar.ui.notepreview
+package com.example.raxar.ui.notedetail
 
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData

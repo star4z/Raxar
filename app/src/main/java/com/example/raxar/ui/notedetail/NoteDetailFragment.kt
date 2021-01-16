@@ -1,4 +1,4 @@
-package com.example.raxar.ui.notepreview
+package com.example.raxar.ui.notedetail
 
 import android.os.Bundle
 import android.view.LayoutInflater

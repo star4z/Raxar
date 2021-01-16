@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/noteListFragment"
-        android:name="com.example.raxar.ui.notes.NotesFragment"
+        android:name="com.example.raxar.ui.notelist.NoteListFragment"
         android:label="note_list_fragment"
         tools:layout="@layout/note_list_fragment" >
         <action
@@ -16,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/noteDetailFragment"
-        android:name="com.example.raxar.ui.notepreview.NoteDetailFragment"
+        android:name="com.example.raxar.ui.notedetail.NoteDetailFragment"
         android:label="note_detail_fragment"
         tools:layout="@layout/note_detail_fragment">
         <action

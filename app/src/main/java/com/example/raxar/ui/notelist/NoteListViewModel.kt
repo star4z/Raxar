@@ -1,4 +1,4 @@
-package com.example.raxar.ui.notes
+package com.example.raxar.ui.notelist
 
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
@@ -9,7 +9,7 @@ import com.example.raxar.data.NoteDto
 import com.example.raxar.data.NoteRepository
 import kotlinx.coroutines.launch
 
-class NotesViewModel @ViewModelInject constructor(private val noteRepository: NoteRepository) :
+class NoteListViewModel @ViewModelInject constructor(private val noteRepository: NoteRepository) :
     ViewModel() {
     val notes: LiveData<List<NoteDto>> = noteRepository.getChildNotes(0L).asLiveData()
 
