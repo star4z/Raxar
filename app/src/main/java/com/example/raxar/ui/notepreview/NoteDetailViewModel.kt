@@ -19,18 +19,29 @@ class NoteDetailViewModel @ViewModelInject constructor(private val noteRepositor
     private val random = SecureRandom()
 
     fun getNote(id: Long) {
-        if (id != 0L) {
-            note = noteRepository.getNote(id).asLiveData()
-            childNotes = noteRepository.getChildNotes(id).asLiveData()
-        } else {
-            note = MutableLiveData()
-            childNotes = MutableLiveData()
+        //Prevent note resetting to id = 0 when parent is initially saved after child due to
+        //re-initialization w/ args
+        if (!this::note.isInitialized) {
+            if (id != 0L) {
+                getNoteUnconditionally(id)
+            } else {
+                note = MutableLiveData()
+                childNotes = MutableLiveData()
+            }
         }
     }
 
-    fun saveNote(noteDetailDto: NoteDetailDto) {
+    private fun getNoteUnconditionally(id: Long) {
+        note = noteRepository.getNote(id).asLiveData()
+        childNotes = noteRepository.getChildNotes(id).asLiveData()
+    }
+
+    fun saveNote(noteDetailDto: NoteDetailDto): NoteDto {
         val noteDto = getNoteDto(noteDetailDto)
-        noteRepository.saveNote(noteDto).also { getNote(noteDto.noteId) }
+        noteRepository.saveNote(noteDto).also {
+            getNoteUnconditionally(noteDto.noteId)
+        }
+        return noteDto
     }
 
     private fun getNoteDto(noteDetailDto: NoteDetailDto): NoteDto {

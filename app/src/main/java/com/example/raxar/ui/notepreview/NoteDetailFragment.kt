@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.example.raxar.data.NoteDto
 import com.example.raxar.databinding.NoteDetailFragmentBinding
 import com.example.raxar.ui.commons.NoteListPreviewAdapter
 import dagger.hilt.android.AndroidEntryPoint
@@ -46,8 +47,9 @@ class NoteDetailFragment : Fragment() {
                 binding.body.setText(it.currentNoteCommit.body)
             }
             binding.addChild.setOnClickListener {
+                val note = saveNote()
                 findNavController().navigate(
-                    NoteDetailFragmentDirections.actionNoteDetailFragmentSelf(parentNoteId = args.noteId)
+                    NoteDetailFragmentDirections.actionNoteDetailFragmentSelf(parentNoteId = note.noteId)
                 )
             }
         }
@@ -73,10 +75,10 @@ class NoteDetailFragment : Fragment() {
         saveNote()
     }
 
-    private fun saveNote() {
+    private fun saveNote(): NoteDto {
         val title = binding.title.text.toString()
         val body = binding.body.text.toString()
-        viewModel.saveNote(
+        return viewModel.saveNote(
             NoteDetailDto(title, body, args.parentNoteId)
         )
     }
