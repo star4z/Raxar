@@ -2,9 +2,6 @@
     <string name="app_name">Raxar</string>
     <string name="action_add_note">Add a note</string>
     <string name="title">Title</string>
-    <string name="body">Body</string>
-    <string name="children_title">Children</string>
-    <string name="note_title">Note</string>
-    <string name="save">Save</string>
-    <string name="add_child">Add Child Note</string>
+    <string name="body">Note</string>
+    <string name="add_child">Add a related Note</string>
 </resources>
