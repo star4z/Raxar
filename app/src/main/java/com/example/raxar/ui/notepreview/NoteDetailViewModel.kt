@@ -15,8 +15,10 @@ class NoteDetailViewModel @ViewModelInject constructor(private val noteRepositor
     ViewModel() {
     lateinit var note: LiveData<NoteDto>
 
+    private val random = SecureRandom()
+
     fun getNote(id: Long) {
-        note = if (id > 0L) {
+        note = if (id != 0L) {
             noteRepository.getNote(id).asLiveData()
         } else {
             MutableLiveData()
@@ -31,7 +33,7 @@ class NoteDetailViewModel @ViewModelInject constructor(private val noteRepositor
     private fun getNoteDto(noteDetailDto: NoteDetailDto): NoteDto {
         note.value?.let {
             val noteCommit = NoteCommit(
-                SecureRandom().nextLong(),
+                genId(),
                 it.noteId,
                 it.currentNoteCommit.noteCommitId,
                 ZonedDateTime.now(),
@@ -46,9 +48,9 @@ class NoteDetailViewModel @ViewModelInject constructor(private val noteRepositor
                 it.noteCommits + noteCommit
             )
         } ?: run {
-            val noteId = SecureRandom().nextLong()
+            val noteId = genId()
             val noteCommit = NoteCommit(
-                SecureRandom().nextLong(),
+                genId(),
                 noteId,
                 0L,
                 ZonedDateTime.now(),
@@ -63,5 +65,13 @@ class NoteDetailViewModel @ViewModelInject constructor(private val noteRepositor
                 listOf(noteCommit)
             )
         }
+    }
+
+    private fun genId(): Long {
+        var id = 0L
+        while (id != 0L) {
+            id = random.nextLong()
+        }
+        return id
     }
 }
