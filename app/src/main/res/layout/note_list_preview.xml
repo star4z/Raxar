@@ -12,5 +12,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="NOTE Title"
-        style="@style/TextAppearance.MaterialComponents.Headline6"/>
+        style="@style/TextAppearance.MaterialComponents.Headline6"
+        android:maxLines="1" />
 </androidx.constraintlayout.widget.ConstraintLayout>
