@@ -68,8 +68,8 @@ class NoteDetailViewModel @ViewModelInject constructor(private val noteRepositor
     }
 
     private fun genId(): Long {
-        var id = 0L
-        while (id != 0L) {
+        var id = random.nextLong()
+        while (id == 0L) {
             id = random.nextLong()
         }
         return id
