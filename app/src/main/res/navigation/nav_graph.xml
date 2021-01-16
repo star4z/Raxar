@@ -18,12 +18,17 @@
         android:id="@+id/noteDetailFragment"
         android:name="com.example.raxar.ui.notepreview.NoteDetailFragment"
         android:label="note_detail_fragment"
-        tools:layout="@layout/note_detail_fragment" >
+        tools:layout="@layout/note_detail_fragment">
         <action
             android:id="@+id/action_noteDetailFragment_self"
             app:destination="@id/noteDetailFragment" />
         <argument
             android:name="noteId"
+            android:defaultValue="0L"
+            app:argType="long" />
+        <argument
+            android:name="parentNoteId"
+            android:defaultValue="0L"
             app:argType="long" />
     </fragment>
 </navigation>

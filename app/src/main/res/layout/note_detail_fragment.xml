@@ -70,11 +70,11 @@
                 app:layout_constraintTop_toBottomOf="@id/title" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/save"
+                android:id="@+id/add_child"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
-                android:text="@string/save"
+                android:text="@string/add_child"
                 app:layout_constraintTop_toBottomOf="@id/body" />
 
             <com.google.android.material.textview.MaterialTextView
@@ -86,7 +86,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_margin="16dp"
-                app:layout_constraintTop_toBottomOf="@id/save" />
+                app:layout_constraintTop_toBottomOf="@id/add_child" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/children"

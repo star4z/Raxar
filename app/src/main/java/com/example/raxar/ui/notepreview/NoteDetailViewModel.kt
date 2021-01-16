@@ -58,7 +58,7 @@ class NoteDetailViewModel @ViewModelInject constructor(private val noteRepositor
             )
             return NoteDto(
                 noteId,
-                0L,
+                noteDetailDto.parentNoteId,
                 noteCommit,
                 listOf(noteCommit)
             )

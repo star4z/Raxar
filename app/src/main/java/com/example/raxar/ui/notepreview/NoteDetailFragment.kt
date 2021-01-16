@@ -45,8 +45,10 @@ class NoteDetailFragment : Fragment() {
                 binding.title.setText(it.currentNoteCommit.title)
                 binding.body.setText(it.currentNoteCommit.body)
             }
-            binding.save.setOnClickListener {
-                saveNote()
+            binding.addChild.setOnClickListener {
+                findNavController().navigate(
+                    NoteDetailFragmentDirections.actionNoteDetailFragmentSelf(parentNoteId = args.noteId)
+                )
             }
         }
 
@@ -60,19 +62,17 @@ class NoteDetailFragment : Fragment() {
             findNavController().navigateUp()
         }
     }
-//
-//    override fun onStop() {
-//        super.onStop()
-//        saveNote()
-//    }
+
+    override fun onStop() {
+        super.onStop()
+        saveNote()
+    }
 
     private fun saveNote() {
         val title = binding.title.text.toString()
         val body = binding.body.text.toString()
         viewModel.saveNote(
-            NoteDetailDto(
-                title, body
-            )
+            NoteDetailDto(title, body, args.parentNoteId)
         )
     }
 }

@@ -6,4 +6,5 @@
     <string name="children_title">Children</string>
     <string name="note_title">Note</string>
     <string name="save">Save</string>
+    <string name="add_child">Add Child Note</string>
 </resources>

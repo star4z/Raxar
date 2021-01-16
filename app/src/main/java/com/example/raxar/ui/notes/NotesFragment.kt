@@ -70,7 +70,7 @@ class NotesFragment : Fragment() {
         }
 
         add_note.setOnClickListener {
-            val action = NotesFragmentDirections.actionNoteListFragmentToNoteDetailFragment(0L)
+            val action = NotesFragmentDirections.actionNoteListFragmentToNoteDetailFragment()
             findNavController().navigate(action)
         }
     }
