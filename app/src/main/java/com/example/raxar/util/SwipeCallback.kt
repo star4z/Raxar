@@ -73,7 +73,7 @@ abstract class SwipeCallback constructor(context: Context) :
                 icon.setBounds(iconLeft, iconTop, iconRight, iconBottom)
                 icon.draw(c)
             }
-            else -> {
+            dX > 0 -> {
                 background.color = backgroundColorLeft
 
                 background.setBounds(
