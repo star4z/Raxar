@@ -79,7 +79,10 @@ class NoteDetailFragment : Fragment() {
 
         val adapter = NoteListPreviewAdapter {
             findNavController().navigate(
-                NoteDetailFragmentDirections.actionNoteDetailFragmentSelf(it.noteId)
+                NoteDetailFragmentDirections.actionNoteDetailFragmentSelf(
+                    it.noteId,
+                    parentNoteId = id
+                )
             )
         }
         children.adapter = adapter
