@@ -67,6 +67,7 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
     }
 
     private suspend fun deleteNote(noteWithCommits: NoteWithCommits) {
+        //Delete Commits before Note to prevent foreign key error
         noteDao.deleteNoteCommitsByNoteId(noteWithCommits.note.noteId)
         noteDao.deleteNote(noteWithCommits.note)
         noteDao.getNotesWithCommitsForParentId(noteWithCommits.note.noteId)
