@@ -2,13 +2,11 @@ package com.example.raxar.ui.notedetail
 
 import android.os.Bundle
 import androidx.hilt.lifecycle.ViewModelInject
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
+import androidx.lifecycle.*
 import com.example.raxar.data.NoteCommit
 import com.example.raxar.data.NoteDto
 import com.example.raxar.data.NoteRepository
+import kotlinx.coroutines.launch
 import java.security.SecureRandom
 import java.time.ZonedDateTime
 
@@ -66,5 +64,11 @@ class NoteDetailViewModel @ViewModelInject constructor(private val noteRepositor
             id = random.nextLong()
         }
         return id
+    }
+
+    fun deleteNote(noteDto: NoteDto) {
+        viewModelScope.launch {
+            noteRepository.deleteNote(noteDto)
+        }
     }
 }

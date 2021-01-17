@@ -9,11 +9,13 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.example.raxar.data.NoteDto
 import com.example.raxar.databinding.NoteDetailFragmentBinding
 import com.example.raxar.ui.commons.NoteListPreviewAdapter
+import com.example.raxar.util.SwipeCallback
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.note_detail_fragment.*
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -85,11 +87,30 @@ class NoteDetailFragment : Fragment() {
                 )
             )
         }
-        children.adapter = adapter
+        binding.children.adapter = adapter
 
         viewModel.childNotes.observe(viewLifecycleOwner) { notes ->
             adapter.submitList(notes.sortedByDescending { noteDto -> noteDto.currentNoteCommit.time })
         }
+
+        val swipeCallback: SwipeCallback = object : SwipeCallback(requireContext()) {
+            override fun getMovementFlags(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder
+            ): Int {
+                return makeMovementFlags(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT)
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                if (direction == ItemTouchHelper.LEFT || direction == ItemTouchHelper.RIGHT) {
+                    val removedNote = adapter.removeItem(viewHolder.adapterPosition)
+                    viewModel.deleteNote(removedNote)
+                }
+            }
+        }
+
+        val itemTouchHelper = ItemTouchHelper(swipeCallback)
+        itemTouchHelper.attachToRecyclerView(binding.children)
 
         binding.toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
