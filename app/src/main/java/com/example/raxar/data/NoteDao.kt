@@ -23,6 +23,9 @@ interface NoteDao {
     @Delete
     suspend fun deleteNote(note: Note)
 
+    @Query("DELETE FROM note_commits WHERE noteId=:noteId")
+    suspend fun deleteNoteCommitsByNoteId(noteId: Long)
+
     @Transaction
     @Query("SELECT * FROM notes")
     fun getNotesWithCommits(): Flow<List<NoteWithCommits>>

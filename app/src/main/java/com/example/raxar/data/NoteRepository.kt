@@ -63,12 +63,16 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
 
     suspend fun deleteNote(noteDto: NoteDto) {
         val noteWithCommits = noteDtoToNoteWithCommits(noteDto)
-        //Delete note, which deletes commits due to delete cascading.
+        deleteNote(noteWithCommits)
+    }
+
+    private suspend fun deleteNote(noteWithCommits: NoteWithCommits) {
         noteDao.deleteNote(noteWithCommits.note)
-        noteDao.getNotesWithCommitsForParentId(noteDto.noteId)
+        noteDao.deleteNoteCommitsByNoteId(noteWithCommits.note.noteId)
+        noteDao.getNotesWithCommitsForParentId(noteWithCommits.note.noteId)
             .collect { notesWithCommits: List<NoteWithCommits> ->
                 notesWithCommits.forEach {
-                    noteDao.deleteNote(it.note)
+                    deleteNote(it)
                 }
             }
     }

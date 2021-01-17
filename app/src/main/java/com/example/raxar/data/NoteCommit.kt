@@ -3,7 +3,6 @@ package com.example.raxar.data
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.ForeignKey.CASCADE
 import androidx.room.PrimaryKey
 import java.time.ZonedDateTime
 
@@ -13,8 +12,7 @@ import java.time.ZonedDateTime
         ForeignKey(
             entity = Note::class,
             parentColumns = ["id"],
-            childColumns = ["noteId"],
-            onDelete = CASCADE
+            childColumns = ["noteId"]
         )]
 )
 class NoteCommit(
