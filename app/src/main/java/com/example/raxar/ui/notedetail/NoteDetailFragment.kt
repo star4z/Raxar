@@ -24,10 +24,32 @@ class NoteDetailFragment : Fragment() {
     private var _binding: NoteDetailFragmentBinding? = null
     private val binding get() = _binding!!
 
+    private var id: Long = 0L
+    private var creating: Boolean = false
+
+    companion object {
+        const val ID_KEY = "id"
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        val state = viewModel.getState()
+        id = when {
+            state.containsKey(ID_KEY) -> {
+                state.getLong(ID_KEY)
+            }
+            args.noteId == 0L -> {
+                creating = true
+                viewModel.genId()
+            }
+            else -> {
+                args.noteId
+            }
+        }
+        state.putLong(ID_KEY, id)
+
         _binding = NoteDetailFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -41,7 +63,8 @@ class NoteDetailFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         lifecycleScope.launch {
-            viewModel.getNote(args.noteId)
+            viewModel.getNote(id, !creating)
+            viewModel.note.removeObservers(viewLifecycleOwner)
             viewModel.note.observe(viewLifecycleOwner) {
                 binding.title.setText(it.currentNoteCommit.title)
                 binding.body.setText(it.currentNoteCommit.body)
@@ -78,6 +101,7 @@ class NoteDetailFragment : Fragment() {
     private fun saveNote(): NoteDto {
         val title = binding.title.text.toString()
         val body = binding.body.text.toString()
+        creating = false
         return viewModel.saveNote(
             NoteDetailDto(title, body, args.parentNoteId)
         )
