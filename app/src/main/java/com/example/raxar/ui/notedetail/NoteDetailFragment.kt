@@ -28,6 +28,7 @@ class NoteDetailFragment : Fragment() {
 
     private var id: Long = 0L
     private var creating: Boolean = false
+    private var saved = false
 
     companion object {
         const val ID_KEY = "id"
@@ -51,6 +52,7 @@ class NoteDetailFragment : Fragment() {
             }
         }
         state.putLong(ID_KEY, id)
+        saved = false
 
         _binding = NoteDetailFragmentBinding.inflate(inflater, container, false)
         return binding.root
@@ -73,9 +75,11 @@ class NoteDetailFragment : Fragment() {
             }
             binding.addChild.setOnClickListener {
                 val note = saveNote()
-                findNavController().navigate(
-                    NoteDetailFragmentDirections.actionNoteDetailFragmentSelf(parentNoteId = note.noteId)
-                )
+                note?.let {
+                    findNavController().navigate(
+                        NoteDetailFragmentDirections.actionNoteDetailFragmentSelf(parentNoteId = note.noteId)
+                    )
+                }
             }
         }
 
@@ -122,12 +126,17 @@ class NoteDetailFragment : Fragment() {
         saveNote()
     }
 
-    private fun saveNote(): NoteDto {
-        val title = binding.title.text.toString()
-        val body = binding.body.text.toString()
-        creating = false
-        return viewModel.saveNote(
-            NoteDetailDto(title, body, args.parentNoteId)
-        )
+    private fun saveNote(): NoteDto? {
+        return if (!saved) {
+            val title = binding.title.text.toString()
+            val body = binding.body.text.toString()
+            creating = false
+            saved = true
+            viewModel.saveNote(
+                NoteDetailDto(title, body, args.parentNoteId)
+            )
+        } else {
+            null
+        }
     }
 }
