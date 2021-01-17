@@ -12,12 +12,6 @@ import javax.inject.Singleton
 @Singleton
 class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
 
-    fun getNotes(): Flow<List<NoteDto>> {
-        return noteDao.getNotesWithCommits().map {
-            it.map(this::noteWithCommitsToNoteDto)
-        }
-    }
-
     private fun noteWithCommitsToNoteDto(noteWithCommits: NoteWithCommits): NoteDto {
         val noteCommits = noteWithCommits.noteCommits
         return NoteDto(
