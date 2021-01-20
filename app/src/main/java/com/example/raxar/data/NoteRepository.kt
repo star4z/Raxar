@@ -1,11 +1,9 @@
 package com.example.raxar.data
 
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
-import java.time.ZonedDateTime
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -17,27 +15,16 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
         return NoteDto(
             noteWithCommits.note.noteId,
             noteWithCommits.note.parentId,
-            noteCommits.find { noteCommit -> noteCommit.noteCommitId == noteWithCommits.note.currentNoteCommitId }
-            //This should never happen but exists here to fail gracefully in the case of a bug
-                ?: NoteCommit(
-                    0L,
-                    0L,
-                    0L,
-                    ZonedDateTime.now(),
-                    "",
-                    "",
-                    ""
-                ),
+            noteCommits.find { noteCommit -> noteCommit.noteCommitId == noteWithCommits.note.currentNoteCommitId }!!,
             noteCommits
         )
     }
 
-    fun saveNote(noteDto: NoteDto) {
+    suspend fun saveNote(noteDto: NoteDto): Long {
         val noteWithCommits = noteDtoToNoteWithCommits(noteDto)
-        GlobalScope.launch {
-            noteDao.saveNote(noteWithCommits.note)
-            noteDao.saveNoteCommit(noteDto.currentNoteCommit)
-        }
+        val rowId = noteDao.saveNote(noteWithCommits.note)
+        noteDao.saveNoteCommit(noteDto.currentNoteCommit)
+        return rowId
     }
 
     private fun noteDtoToNoteWithCommits(noteDto: NoteDto): NoteWithCommits {
@@ -52,6 +39,7 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
     }
 
     fun getNote(id: Long): Flow<NoteDto> {
+        Timber.d("getNote(${id})")
         return noteDao.getNotesWithCommits(id).map(this::noteWithCommitsToNoteDto)
     }
 
@@ -73,6 +61,7 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
     }
 
     fun getChildNotes(parentId: Long): Flow<List<NoteDto>> {
+        Timber.d("getChildNotes(${parentId}")
         return noteDao.getNotesWithCommitsForParentId(parentId).map {
             it.map(this::noteWithCommitsToNoteDto)
         }
