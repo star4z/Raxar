@@ -17,9 +17,6 @@ interface NoteDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun saveNoteCommit(noteCommit: NoteCommit): Long
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun saveNoteCommits(noteCommits: List<NoteCommit>): List<Long>
-
     @Delete
     suspend fun deleteNote(note: Note)
 
@@ -31,7 +28,7 @@ interface NoteDao {
     fun getNotesWithCommits(): Flow<List<NoteWithCommits>>
 
     @Transaction
-    @Query("SELECT * FROM notes WHERE id=:id LIMIT 1")
+    @Query("SELECT * FROM notes WHERE noteId=:id LIMIT 1")
     fun getNotesWithCommits(id: Long): Flow<NoteWithCommits>
 
     @Transaction

@@ -14,7 +14,7 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
         val noteCommits = noteWithCommits.noteCommits
         return NoteDto(
             noteWithCommits.note.noteId,
-            noteWithCommits.note.parentId,
+            noteWithCommits.note.parentNoteId,
             noteCommits.find { noteCommit -> noteCommit.noteCommitId == noteWithCommits.note.currentNoteCommitId }!!,
             noteCommits
         )
@@ -31,7 +31,7 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
         return NoteWithCommits(
             Note(
                 noteDto.noteId,
-                noteDto.parentId,
+                noteDto.parentNoteId,
                 noteDto.currentNoteCommit.noteCommitId
             ),
             noteDto.noteCommits
