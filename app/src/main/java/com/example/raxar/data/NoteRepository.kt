@@ -19,6 +19,18 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
         )
     }
 
+    private fun nullableNoteWithCommitsToNoteDto(noteWithCommits: NoteWithCommits?): NoteDto? {
+        noteWithCommits?.let {
+            val noteCommits = noteWithCommits.noteCommits
+            return NoteDto(
+                noteWithCommits.note.noteId,
+                noteWithCommits.note.parentNoteId,
+                noteCommits.find { noteCommit -> noteCommit.noteCommitId == noteWithCommits.note.currentNoteCommitId }!!,
+                noteCommits
+            )
+        } ?: return null
+    }
+
     fun saveNote(noteDto: NoteDto) {
         val noteWithCommits = noteDtoToNoteWithCommits(noteDto)
         noteDao.saveNoteAndCurrentCommit(noteWithCommits.note, noteDto.currentNoteCommit)
@@ -35,9 +47,9 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
         )
     }
 
-    fun getNote(id: Long): Flow<NoteDto> {
+    fun getNote(id: Long): Flow<NoteDto?> {
         Timber.d("getNote(${id})")
-        return noteDao.getNotesWithCommits(id).map(this::noteWithCommitsToNoteDto)
+        return noteDao.getNotesWithCommits(id).map(this::nullableNoteWithCommitsToNoteDto)
     }
 
     fun deleteNote(noteDto: NoteDto) {

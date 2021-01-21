@@ -29,7 +29,7 @@ abstract class NoteDao {
 
     @Transaction
     @Query("SELECT * FROM notes WHERE noteId=:id LIMIT 1")
-    abstract fun getNotesWithCommits(id: Long): Flow<NoteWithCommits>
+    abstract fun getNotesWithCommits(id: Long): Flow<NoteWithCommits?>
 
     @Transaction
     @Query("SELECT * FROM notes WHERE parentNoteId=:parentNoteId")
