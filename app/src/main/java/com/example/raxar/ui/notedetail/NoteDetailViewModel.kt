@@ -6,6 +6,7 @@ import androidx.lifecycle.*
 import com.example.raxar.data.NoteCommit
 import com.example.raxar.data.NoteDto
 import com.example.raxar.data.NoteRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.security.SecureRandom
 import java.time.ZonedDateTime
@@ -48,7 +49,7 @@ class NoteDetailViewModel @ViewModelInject constructor(
 
     fun saveNote(noteDetailDto: NoteDetailDto): NoteDto {
         val noteDto = getNoteDto(noteDetailDto)
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             noteRepository.saveNote(noteDto)
             if (created) {
                 note = noteRepository.getNote(noteId).asLiveData()
@@ -72,7 +73,7 @@ class NoteDetailViewModel @ViewModelInject constructor(
             )
             return NoteDto(
                 noteDto.noteId,
-                noteDetailDto.parentNoteId,
+                if (noteDetailDto.parentNoteId == 0L) null else noteDetailDto.parentNoteId,
                 noteCommit,
                 noteDto.noteCommits + noteCommit
             )
@@ -88,7 +89,7 @@ class NoteDetailViewModel @ViewModelInject constructor(
     }
 
     fun deleteNote(noteDto: NoteDto) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             noteRepository.deleteNote(noteDto)
         }
     }

@@ -1,9 +1,7 @@
 package com.example.raxar.data
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
+import androidx.room.*
+import androidx.room.ForeignKey.CASCADE
 
 @Entity(
     tableName = "notes",
@@ -13,11 +11,22 @@ import androidx.room.PrimaryKey
             parentColumns = ["noteCommitId"],
             childColumns = ["currentNoteCommitId"],
             deferred = true
+        ),
+        ForeignKey(
+            entity = Note::class,
+            parentColumns = ["noteId"],
+            childColumns = ["parentNoteId"],
+            deferred = true,
+            onDelete = CASCADE
         )
+    ],
+    indices = [
+        Index("currentNoteCommitId"),
+        Index("parentNoteId")
     ]
 )
 data class Note(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "noteId") val noteId: Long = 0,
-    @ColumnInfo(name = "parentId") val parentNoteId: Long,
+    @ColumnInfo(name = "parentNoteId") val parentNoteId: Long? = null,
     @ColumnInfo(name = "currentNoteCommitId") val currentNoteCommitId: Long
 )

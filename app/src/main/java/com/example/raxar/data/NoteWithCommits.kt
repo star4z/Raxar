@@ -6,7 +6,7 @@ import androidx.room.Relation
 data class NoteWithCommits(
     @Embedded val note: Note,
     @Relation(
-        parentColumn = "id",
+        parentColumn = "noteId",
         entityColumn = "noteId"
     )
     val noteCommits: List<NoteCommit>

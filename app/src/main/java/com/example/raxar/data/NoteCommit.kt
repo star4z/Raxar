@@ -1,10 +1,7 @@
 package com.example.raxar.data
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.ForeignKey
+import androidx.room.*
 import androidx.room.ForeignKey.CASCADE
-import androidx.room.PrimaryKey
 import java.time.ZonedDateTime
 
 @Entity(
@@ -12,10 +9,13 @@ import java.time.ZonedDateTime
     foreignKeys = [
         ForeignKey(
             entity = Note::class,
-            parentColumns = ["id"],
+            parentColumns = ["noteId"],
             childColumns = ["noteId"],
             onDelete = CASCADE
-        )]
+        )],
+    indices = [
+        Index("noteId"),
+    ]
 )
 class NoteCommit(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "noteCommitId") val noteCommitId: Long = 0,
