@@ -69,6 +69,7 @@ class NoteDetailFragment : Fragment() {
         }
         binding.children.adapter = adapter
 
+        viewModel.childNotes.removeObservers(viewLifecycleOwner)
         viewModel.childNotes.observe(viewLifecycleOwner) { notes ->
             adapter.submitList(notes.sortedByDescending { noteDto -> noteDto.currentNoteCommit.time })
         }
