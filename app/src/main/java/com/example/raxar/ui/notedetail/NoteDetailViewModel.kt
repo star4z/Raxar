@@ -6,17 +6,17 @@ import androidx.lifecycle.*
 import com.example.raxar.data.NoteDto
 import com.example.raxar.data.NoteRepository
 import com.example.raxar.data.models.NoteCommit
+import com.example.raxar.util.IdGenerator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.security.SecureRandom
 import java.time.ZonedDateTime
 
 class NoteDetailViewModel @ViewModelInject constructor(
     private val noteRepository: NoteRepository,
-    @Assisted private val savedStateHandle: SavedStateHandle
+    @Assisted private val savedStateHandle: SavedStateHandle,
+    private val idGenerator: IdGenerator
 ) :
     ViewModel() {
-    private val random = SecureRandom()
     private var created = false
     private val noteIdFromState = savedStateHandle.get<Long>("noteId")!!
     private val parentNoteIdFromState = savedStateHandle.get<Long>("parentNoteId")!!
@@ -25,7 +25,7 @@ class NoteDetailViewModel @ViewModelInject constructor(
     init {
         if (noteId == 0L) {
             if (noteIdFromState == 0L) {
-                noteId = genId()
+                noteId = idGenerator.genId()
                 created = true
             } else {
                 noteId = noteIdFromState
@@ -68,7 +68,7 @@ class NoteDetailViewModel @ViewModelInject constructor(
     private fun getNoteDto(noteDetailDto: NoteDetailDto): NoteDto? {
         note.value?.let { noteDto: NoteDto ->
             val noteCommit = NoteCommit(
-                genId(),
+                idGenerator.genId(),
                 noteDto.noteId,
                 noteDto.currentNoteCommit.noteCommitId,
                 ZonedDateTime.now(),
@@ -85,14 +85,6 @@ class NoteDetailViewModel @ViewModelInject constructor(
         } ?: run {
             return null
         }
-    }
-
-    private fun genId(): Long {
-        var id = random.nextLong()
-        while (id == 0L) {
-            id = random.nextLong()
-        }
-        return id
     }
 
     fun deleteNote(noteDto: NoteDto) {
