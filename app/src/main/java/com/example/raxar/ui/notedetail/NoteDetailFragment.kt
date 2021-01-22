@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.raxar.data.NoteDto
@@ -19,7 +18,6 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class NoteDetailFragment : Fragment() {
 
-    private val args: NoteDetailFragmentArgs by navArgs()
     private val viewModel: NoteDetailViewModel by viewModels()
     private var _binding: NoteDetailFragmentBinding? = null
     private val binding get() = _binding!!
@@ -111,7 +109,7 @@ class NoteDetailFragment : Fragment() {
             val body = binding.body.text.toString()
             saved = true
             viewModel.saveNote(
-                NoteDetailDto(title, body, args.parentNoteId)
+                NoteDetailDto(title, body)
             )
         } else {
             null

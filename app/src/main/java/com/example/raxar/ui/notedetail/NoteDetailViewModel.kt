@@ -19,6 +19,7 @@ class NoteDetailViewModel @ViewModelInject constructor(
     private val random = SecureRandom()
     private var created = false
     private val noteIdFromState = savedStateHandle.get<Long>("noteId")!!
+    private val parentNoteIdFromState = savedStateHandle.get<Long>("parentNoteId")!!
     private var noteId: Long = 0L
 
     init {
@@ -77,7 +78,7 @@ class NoteDetailViewModel @ViewModelInject constructor(
             )
             return NoteDto(
                 noteDto.noteId,
-                if (noteDetailDto.parentNoteId == 0L) null else noteDetailDto.parentNoteId,
+                if (parentNoteIdFromState != 0L) parentNoteIdFromState else null,
                 noteCommit,
                 noteDto.noteCommits + noteCommit
             )
