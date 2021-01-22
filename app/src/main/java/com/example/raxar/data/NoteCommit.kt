@@ -11,7 +11,8 @@ import java.time.ZonedDateTime
             entity = Note::class,
             parentColumns = ["noteId"],
             childColumns = ["noteId"],
-            onDelete = CASCADE
+            onDelete = CASCADE,
+            deferred = true
         )],
     indices = [
         Index("noteId"),

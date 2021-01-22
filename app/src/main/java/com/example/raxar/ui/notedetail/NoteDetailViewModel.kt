@@ -44,7 +44,7 @@ class NoteDetailViewModel @ViewModelInject constructor(
         if (created) {
             MutableLiveData(listOf())
         } else {
-            noteRepository.getChildNotes(noteIdFromState).asLiveData()
+            noteRepository.getChildNotes(noteId).asLiveData()
         }
 
     fun saveNote(noteDetailDto: NoteDetailDto): NoteDto? {
