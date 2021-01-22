@@ -2,6 +2,7 @@ package com.example.raxar.data.pojos
 
 import androidx.room.Embedded
 import androidx.room.Relation
+import com.example.raxar.data.dbviews.NoteWithCurrentCommitView
 import com.example.raxar.data.models.Note
 import com.example.raxar.data.models.NoteCommit
 
@@ -16,5 +17,5 @@ data class NoteWithCurrentCommitAndChildNotes(
         parentColumn = "noteId",
         entityColumn = "parentNoteId"
     )
-    val childNotes: List<Note>
+    val childNotes: List<NoteWithCurrentCommitView>
 )

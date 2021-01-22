@@ -43,22 +43,6 @@ class NoteDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.note.removeObservers(viewLifecycleOwner)
-        viewModel.note.observe(viewLifecycleOwner) { noteDto ->
-            noteDto?.let {
-                binding.title.setText(noteDto.currentNoteCommit.title)
-                binding.body.setText(noteDto.currentNoteCommit.body)
-            }
-        }
-        binding.addChild.setOnClickListener {
-            val note = saveNote()
-            note?.let {
-                findNavController().navigate(
-                    NoteDetailFragmentDirections.actionNoteDetailFragmentSelf(parentNoteId = note.noteId)
-                )
-            }
-        }
-
         val adapter = NoteListPreviewAdapter {
             findNavController().navigate(
                 NoteDetailFragmentDirections.actionNoteDetailFragmentSelf(
@@ -68,11 +52,6 @@ class NoteDetailFragment : Fragment() {
             )
         }
         binding.children.adapter = adapter
-
-        viewModel.childNotes.removeObservers(viewLifecycleOwner)
-        viewModel.childNotes.observe(viewLifecycleOwner) { notes ->
-            adapter.submitList(notes.sortedByDescending { noteDto -> noteDto.currentNoteCommit.time })
-        }
 
         val swipeCallback: SwipeCallback = object : SwipeCallback(requireContext()) {
             override fun getMovementFlags(
@@ -92,6 +71,23 @@ class NoteDetailFragment : Fragment() {
 
         val itemTouchHelper = ItemTouchHelper(swipeCallback)
         itemTouchHelper.attachToRecyclerView(binding.children)
+
+        viewModel.note.removeObservers(viewLifecycleOwner)
+        viewModel.note.observe(viewLifecycleOwner) { noteDto ->
+            noteDto?.let {
+                binding.title.setText(noteDto.currentNoteCommit.title)
+                binding.body.setText(noteDto.currentNoteCommit.body)
+                adapter.submitList(noteDto.childNotes.sortedByDescending { noteDto -> noteDto.currentNoteCommit.time })
+            }
+        }
+        binding.addChild.setOnClickListener {
+            val note = saveNote()
+            note?.let {
+                findNavController().navigate(
+                    NoteDetailFragmentDirections.actionNoteDetailFragmentSelf(parentNoteId = note.noteId)
+                )
+            }
+        }
 
         binding.toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
