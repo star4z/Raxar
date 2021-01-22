@@ -25,7 +25,7 @@ class NoteListPreviewAdapter(val itemCallback: (NoteDto) -> Unit) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
-        holder.itemView.text.text = item.currentNoteCommit.title
+        holder.itemView.text.text = item.title
         holder.itemView.setOnClickListener {
             itemCallback(item)
         }

@@ -75,9 +75,9 @@ class NoteDetailFragment : Fragment() {
         viewModel.note.removeObservers(viewLifecycleOwner)
         viewModel.note.observe(viewLifecycleOwner) { noteDto ->
             noteDto?.let {
-                binding.title.setText(noteDto.currentNoteCommit.title)
-                binding.body.setText(noteDto.currentNoteCommit.body)
-                adapter.submitList(noteDto.childNotes.sortedByDescending { noteDto -> noteDto.currentNoteCommit.time })
+                binding.title.setText(noteDto.title)
+                binding.body.setText(noteDto.body)
+                adapter.submitList(noteDto.childNotes.sortedByDescending { noteDto -> noteDto.time })
             }
         }
         binding.addChild.setOnClickListener {

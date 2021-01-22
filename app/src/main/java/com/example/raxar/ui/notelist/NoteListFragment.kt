@@ -67,7 +67,7 @@ class NoteListFragment : Fragment() {
 
         viewModel.notes.removeObservers(viewLifecycleOwner)
         viewModel.notes.observe(viewLifecycleOwner) { notes ->
-            adapter.submitList(notes.sortedByDescending { it.currentNoteCommit.time })
+            adapter.submitList(notes.sortedByDescending { it.time })
         }
 
         add_note.setOnClickListener {

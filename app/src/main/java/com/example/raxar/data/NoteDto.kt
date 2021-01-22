@@ -1,11 +1,15 @@
 package com.example.raxar.data
 
-import com.example.raxar.data.models.NoteCommit
+import java.time.ZonedDateTime
 
 data class NoteDto(
     val noteId: Long = 0,
     val parentNoteId: Long? = null,
-    val currentNoteCommit: NoteCommit = NoteCommit(),
-    val noteCommits: List<NoteCommit> = listOf(),
+    val noteCommitId: Long = 0,
+    val parentNoteCommitId: Long = 0,
+    val time: ZonedDateTime = ZonedDateTime.now(),
+    val color: String = "",
+    val title: String = "",
+    val body: String = "",
     val childNotes: List<NoteDto> = listOf()
 )

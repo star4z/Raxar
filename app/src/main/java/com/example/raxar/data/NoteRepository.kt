@@ -3,7 +3,7 @@ package com.example.raxar.data
 import com.example.raxar.data.dbviews.NoteWithCurrentCommitView
 import com.example.raxar.data.models.Note
 import com.example.raxar.data.models.NoteCommit
-import com.example.raxar.data.pojos.NoteWithCommits
+import com.example.raxar.data.pojos.NoteWithCurrentCommit
 import com.example.raxar.data.pojos.NoteWithCurrentCommitAndChildNotes
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -17,8 +17,8 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
     //region Repository methods
 
     fun getRootNotes(): Flow<List<NoteDto>> {
-        return noteDao.getNotesWithCommitsForRootNode().map {
-            it.map(this::noteWithCommitsToNoteDto)
+        return noteDao.getNotesWithCurrentCommitsForRootNode().map {
+            it.map(this::noteWithCurrentCommitToNoteDto)
         }
     }
 
@@ -29,13 +29,15 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
     }
 
     fun insertNote(noteDto: NoteDto) {
-        val noteWithCommits = noteDtoToNoteWithCommits(noteDto)
-        noteDao.insertNoteAndNoteCommit(noteWithCommits.note, noteDto.currentNoteCommit)
+        val note = noteDtoToNote(noteDto)
+        val commit = noteDtoToNoteCommit(noteDto)
+        noteDao.insertNoteAndNoteCommit(note, commit)
     }
 
     fun updateNote(noteDto: NoteDto) {
-        val noteWithCommits = noteDtoToNoteWithCommits(noteDto)
-        noteDao.updateNoteAndInsertNoteCommit(noteWithCommits.note, noteDto.currentNoteCommit)
+        val note = noteDtoToNote(noteDto)
+        val commit = noteDtoToNoteCommit(noteDto)
+        noteDao.updateNoteAndInsertNoteCommit(note, commit)
     }
 
     fun deleteNote(noteDto: NoteDto) {
@@ -48,28 +50,28 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
     //region Mappers
 
     private fun nullableNoteWithCurrentCommitAndChildNotesToNoteDto(
-        noteWithCurrentCommitAndChildNotes: NoteWithCurrentCommitAndChildNotes
-    ): NoteDto {
-        return NoteDto(
-            noteId = noteWithCurrentCommitAndChildNotes.note.noteId,
-            parentNoteId = noteWithCurrentCommitAndChildNotes.note.parentNoteId,
-            currentNoteCommit = noteWithCurrentCommitAndChildNotes.noteCommit,
-            childNotes = noteWithCurrentCommitAndChildNotes.childNotes.map(this::noteWithCurrentCommitViewToNoteDto)
-        )
+        noteWithCurrentCommitAndChildNotes: NoteWithCurrentCommitAndChildNotes?
+    ): NoteDto? {
+        noteWithCurrentCommitAndChildNotes?.let {
+            return NoteDto(
+                noteId = noteWithCurrentCommitAndChildNotes.note.noteId,
+                parentNoteId = noteWithCurrentCommitAndChildNotes.note.parentNoteId,
+                noteCommitId = noteWithCurrentCommitAndChildNotes.noteCommit.noteCommitId,
+                parentNoteCommitId = noteWithCurrentCommitAndChildNotes.noteCommit.parentNoteCommitId,
+                time = noteWithCurrentCommitAndChildNotes.noteCommit.time,
+                color = noteWithCurrentCommitAndChildNotes.noteCommit.color,
+                title = noteWithCurrentCommitAndChildNotes.noteCommit.title,
+                body = noteWithCurrentCommitAndChildNotes.noteCommit.body,
+                childNotes = noteWithCurrentCommitAndChildNotes.childNotes.map(this::noteWithCurrentCommitViewToNoteDto)
+            )
+        } ?: return null
     }
 
     private fun noteWithCurrentCommitViewToNoteDto(noteWithCurrentCommitView: NoteWithCurrentCommitView): NoteDto {
         return NoteDto(
             noteId = noteWithCurrentCommitView.noteId,
             parentNoteId = noteWithCurrentCommitView.parentNoteId,
-            currentNoteCommit = noteWithCurrentCommitViewToNoteCommit(noteWithCurrentCommitView)
-        )
-    }
-
-    private fun noteWithCurrentCommitViewToNoteCommit(noteWithCurrentCommitView: NoteWithCurrentCommitView): NoteCommit {
-        return NoteCommit(
-            noteCommitId = noteWithCurrentCommitView.currentNoteCommitId,
-            noteId = noteWithCurrentCommitView.noteId,
+            noteCommitId = noteWithCurrentCommitView.noteCommitId,
             parentNoteCommitId = noteWithCurrentCommitView.parentNoteCommitId,
             time = noteWithCurrentCommitView.time,
             color = noteWithCurrentCommitView.color,
@@ -82,36 +84,32 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
         return Note(
             noteId = noteDto.noteId,
             parentNoteId = noteDto.parentNoteId,
-            currentNoteCommitId = noteDto.currentNoteCommit.noteCommitId
+            currentNoteCommitId = noteDto.noteCommitId
         )
     }
 
-    private fun noteWithCommitsToNoteDto(noteWithCommits: NoteWithCommits): NoteDto {
-        val noteCommits = noteWithCommits.noteCommits
+    private fun noteWithCurrentCommitToNoteDto(noteWithCurrentCommit: NoteWithCurrentCommit): NoteDto {
         return NoteDto(
-            noteId = noteWithCommits.note.noteId,
-            parentNoteId = noteWithCommits.note.parentNoteId,
-            currentNoteCommit = noteCommits.find { noteCommit -> noteCommit.noteCommitId == noteWithCommits.note.currentNoteCommitId }!!,
-            noteCommits = noteCommits
+            noteId = noteWithCurrentCommit.note.noteId,
+            parentNoteId = noteWithCurrentCommit.note.parentNoteId,
+            noteCommitId = noteWithCurrentCommit.noteCommit.noteCommitId,
+            parentNoteCommitId = noteWithCurrentCommit.noteCommit.parentNoteCommitId,
+            time = noteWithCurrentCommit.noteCommit.time,
+            color = noteWithCurrentCommit.noteCommit.color,
+            title = noteWithCurrentCommit.noteCommit.title,
+            body = noteWithCurrentCommit.noteCommit.body
         )
     }
 
-    private fun nullableNoteWithCommitsToNoteDto(noteWithCommits: NoteWithCommits?): NoteDto? {
-        noteWithCommits?.let {
-            val noteCommits = noteWithCommits.noteCommits
-            return NoteDto(
-                noteId = noteWithCommits.note.noteId,
-                parentNoteId = noteWithCommits.note.parentNoteId,
-                currentNoteCommit = noteCommits.find { noteCommit -> noteCommit.noteCommitId == noteWithCommits.note.currentNoteCommitId }!!,
-                noteCommits = noteCommits
-            )
-        } ?: return null
-    }
-
-    private fun noteDtoToNoteWithCommits(noteDto: NoteDto): NoteWithCommits {
-        return NoteWithCommits(
-            noteDtoToNote(noteDto),
-            noteDto.noteCommits
+    private fun noteDtoToNoteCommit(noteDto: NoteDto): NoteCommit {
+        return NoteCommit(
+            noteCommitId = noteDto.noteCommitId,
+            noteId = noteDto.noteId,
+            parentNoteCommitId = noteDto.parentNoteCommitId,
+            time = noteDto.time,
+            color = noteDto.color,
+            title = noteDto.title,
+            body = noteDto.body
         )
     }
 

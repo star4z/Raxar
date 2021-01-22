@@ -5,11 +5,9 @@ import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
 import com.example.raxar.data.NoteDto
 import com.example.raxar.data.NoteRepository
-import com.example.raxar.data.models.NoteCommit
 import com.example.raxar.util.IdGenerator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.time.ZonedDateTime
 
 class NoteDetailViewModel @ViewModelInject constructor(
     private val noteRepository: NoteRepository,
@@ -59,20 +57,13 @@ class NoteDetailViewModel @ViewModelInject constructor(
 
     private fun getNoteDto(noteDetailDto: NoteDetailDto): NoteDto? {
         note.value?.let { noteDto: NoteDto ->
-            val noteCommit = NoteCommit(
-                idGenerator.genId(),
-                noteDto.noteId,
-                noteDto.currentNoteCommit.noteCommitId,
-                ZonedDateTime.now(),
-                "",
-                noteDetailDto.title,
-                noteDetailDto.body
-            )
             return NoteDto(
-                noteDto.noteId,
-                if (parentNoteIdFromState != 0L) parentNoteIdFromState else null,
-                noteCommit,
-                noteDto.noteCommits + noteCommit
+                noteId = noteDto.noteId,
+                parentNoteId = if (parentNoteIdFromState != 0L) parentNoteIdFromState else null,
+                noteCommitId = idGenerator.genId(),
+                parentNoteCommitId = noteDto.noteCommitId,
+                title = noteDetailDto.title,
+                body = noteDetailDto.body
             )
         } ?: run {
             return null
