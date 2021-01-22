@@ -46,9 +46,11 @@ class NoteDetailFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.note.removeObservers(viewLifecycleOwner)
-        viewModel.note.observe(viewLifecycleOwner) {
-            binding.title.setText(it.currentNoteCommit.title)
-            binding.body.setText(it.currentNoteCommit.body)
+        viewModel.note.observe(viewLifecycleOwner) { noteDto ->
+            noteDto?.let {
+                binding.title.setText(noteDto.currentNoteCommit.title)
+                binding.body.setText(noteDto.currentNoteCommit.body)
+            }
         }
         binding.addChild.setOnClickListener {
             val note = saveNote()

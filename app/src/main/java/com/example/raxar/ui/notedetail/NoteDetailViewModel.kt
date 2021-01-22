@@ -33,11 +33,11 @@ class NoteDetailViewModel @ViewModelInject constructor(
         }
     }
 
-    var note =
+    var note: LiveData<NoteDto?> =
         if (created) {
-            MutableLiveData(NoteDto(genId()))
+            MutableLiveData(NoteDto(noteId))
         } else {
-            noteRepository.getNote(noteIdFromState).asLiveData()
+            noteRepository.getNote(noteId).asLiveData()
         }
 
     var childNotes =
@@ -47,21 +47,23 @@ class NoteDetailViewModel @ViewModelInject constructor(
             noteRepository.getChildNotes(noteIdFromState).asLiveData()
         }
 
-    fun saveNote(noteDetailDto: NoteDetailDto): NoteDto {
+    fun saveNote(noteDetailDto: NoteDetailDto): NoteDto? {
         val noteDto = getNoteDto(noteDetailDto)
-        viewModelScope.launch(Dispatchers.IO) {
-            noteRepository.saveNote(noteDto)
-            if (created) {
-                note = noteRepository.getNote(noteId).asLiveData()
-                childNotes = noteRepository.getChildNotes(noteId).asLiveData()
-                created = false
+        noteDto?.let {
+            viewModelScope.launch(Dispatchers.IO) {
+                noteRepository.saveNote(noteDto)
+                if (created) {
+                    note = noteRepository.getNote(noteId).asLiveData()
+                    childNotes = noteRepository.getChildNotes(noteId).asLiveData()
+                    created = false
+                }
             }
         }
         return noteDto
     }
 
-    private fun getNoteDto(noteDetailDto: NoteDetailDto): NoteDto {
-        note.value!!.let { noteDto: NoteDto ->
+    private fun getNoteDto(noteDetailDto: NoteDetailDto): NoteDto? {
+        note.value?.let { noteDto: NoteDto ->
             val noteCommit = NoteCommit(
                 genId(),
                 noteDto.noteId,
@@ -77,6 +79,8 @@ class NoteDetailViewModel @ViewModelInject constructor(
                 noteCommit,
                 noteDto.noteCommits + noteCommit
             )
+        } ?: run {
+            return null
         }
     }
 
