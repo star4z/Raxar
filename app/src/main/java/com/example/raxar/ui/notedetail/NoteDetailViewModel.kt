@@ -51,11 +51,13 @@ class NoteDetailViewModel @ViewModelInject constructor(
         val noteDto = getNoteDto(noteDetailDto)
         noteDto?.let {
             viewModelScope.launch(Dispatchers.IO) {
-                noteRepository.saveNote(noteDto)
                 if (created) {
+                    noteRepository.insertNote(noteDto)
                     note = noteRepository.getNote(noteId).asLiveData()
                     childNotes = noteRepository.getChildNotes(noteId).asLiveData()
                     created = false
+                } else {
+                    noteRepository.updateNote(noteDto)
                 }
             }
         }

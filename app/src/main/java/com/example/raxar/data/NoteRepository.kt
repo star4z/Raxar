@@ -31,9 +31,14 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
         } ?: return null
     }
 
-    fun saveNote(noteDto: NoteDto) {
+    fun insertNote(noteDto: NoteDto) {
         val noteWithCommits = noteDtoToNoteWithCommits(noteDto)
-        noteDao.saveNoteAndCurrentCommit(noteWithCommits.note, noteDto.currentNoteCommit)
+        noteDao.insertNoteAndNoteCommit(noteWithCommits.note, noteDto.currentNoteCommit)
+    }
+
+    fun updateNote(noteDto: NoteDto) {
+        val noteWithCommits = noteDtoToNoteWithCommits(noteDto)
+        noteDao.updateNoteAndInsertNoteCommit(noteWithCommits.note, noteDto.currentNoteCommit)
     }
 
     private fun noteDtoToNoteWithCommits(noteDto: NoteDto): NoteWithCommits {

@@ -11,11 +11,14 @@ abstract class NoteDao {
     @Query("SELECT * FROM note_commits WHERE noteId IN (:noteIds)")
     abstract fun getCurrentNoteCommits(noteIds: List<Long>): Flow<List<NoteCommit>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun saveNote(note: Note): Long
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    abstract fun insertNote(note: Note)
+
+    @Update
+    abstract fun updateNote(note: Note)
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    abstract fun saveNoteCommit(noteCommit: NoteCommit): Long
+    abstract fun insertNoteCommit(noteCommit: NoteCommit)
 
     @Delete
     abstract fun deleteNote(note: Note)
@@ -40,8 +43,14 @@ abstract class NoteDao {
     abstract fun getNotesWithCommitsForRootNode(): Flow<List<NoteWithCommits>>
 
     @Transaction
-    open fun saveNoteAndCurrentCommit(note: Note, currentNoteCommit: NoteCommit) {
-        saveNote(note)
-        saveNoteCommit(currentNoteCommit)
+    open fun insertNoteAndNoteCommit(note: Note, currentNoteCommit: NoteCommit) {
+        insertNote(note)
+        insertNoteCommit(currentNoteCommit)
+    }
+
+    @Transaction
+    open fun updateNoteAndInsertNoteCommit(note: Note, currentNoteCommit: NoteCommit) {
+        updateNote(note)
+        insertNoteCommit(currentNoteCommit)
     }
 }
