@@ -1,7 +1,9 @@
-package com.example.raxar.data
+package com.example.raxar.data.pojos
 
 import androidx.room.Embedded
 import androidx.room.Relation
+import com.example.raxar.data.models.Note
+import com.example.raxar.data.models.NoteCommit
 
 data class NoteWithCommits(
     @Embedded val note: Note,

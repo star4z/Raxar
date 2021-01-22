@@ -3,9 +3,9 @@ package com.example.raxar.ui.notedetail
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
-import com.example.raxar.data.NoteCommit
 import com.example.raxar.data.NoteDto
 import com.example.raxar.data.NoteRepository
+import com.example.raxar.data.models.NoteCommit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.security.SecureRandom

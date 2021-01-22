@@ -1,15 +1,15 @@
 package com.example.raxar.data
 
 import androidx.room.*
+import com.example.raxar.data.models.Note
+import com.example.raxar.data.models.NoteCommit
+import com.example.raxar.data.pojos.NoteWithCommits
+import com.example.raxar.data.pojos.NoteWithCurrentCommit
+import com.example.raxar.data.pojos.NoteWithCurrentCommitAndChildNotes
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class NoteDao {
-    @Query("SELECT * FROM  notes")
-    abstract fun getNotes(): Flow<List<Note>>
-
-    @Query("SELECT * FROM note_commits WHERE noteId IN (:noteIds)")
-    abstract fun getCurrentNoteCommits(noteIds: List<Long>): Flow<List<NoteCommit>>
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     abstract fun insertNote(note: Note)
@@ -23,16 +23,9 @@ abstract class NoteDao {
     @Delete
     abstract fun deleteNote(note: Note)
 
-    @Query("DELETE FROM note_commits WHERE noteId=:noteId")
-    abstract suspend fun deleteNoteCommitsByNoteId(noteId: Long)
-
     @Transaction
-    @Query("SELECT * FROM notes")
-    abstract fun getNotesWithCommits(): Flow<List<NoteWithCommits>>
-
-    @Transaction
-    @Query("SELECT * FROM notes WHERE noteId=:id LIMIT 1")
-    abstract fun getNotesWithCommits(id: Long): Flow<NoteWithCommits?>
+    @Query("SELECT * FROM notes WHERE noteId=:noteId LIMIT 1")
+    abstract fun getNotesWithCommits(noteId: Long): Flow<NoteWithCommits?>
 
     @Transaction
     @Query("SELECT * FROM notes WHERE parentNoteId=:parentNoteId")
@@ -53,4 +46,12 @@ abstract class NoteDao {
         updateNote(note)
         insertNoteCommit(currentNoteCommit)
     }
+
+    @Transaction
+    @Query("SELECT * FROM notes WHERE noteId=:noteId LIMIT 1")
+    abstract fun getNoteWithCurrentCommit(noteId: Long): Flow<NoteWithCurrentCommit?>
+
+    @Transaction
+    @Query("SELECT * FROM notes WHERE noteId=:noteId LIMIT 1")
+    abstract fun getNoteWithCurrentCommitAndChildNotes(noteId: Long): Flow<NoteWithCurrentCommitAndChildNotes>
 }

@@ -1,5 +1,7 @@
 package com.example.raxar.data
 
+import com.example.raxar.data.models.Note
+import com.example.raxar.data.pojos.NoteWithCommits
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import timber.log.Timber

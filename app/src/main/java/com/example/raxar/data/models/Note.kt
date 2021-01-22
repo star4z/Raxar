@@ -1,4 +1,4 @@
-package com.example.raxar.data
+package com.example.raxar.data.models
 
 import androidx.room.*
 import androidx.room.ForeignKey.CASCADE
