@@ -5,9 +5,6 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.example.raxar.data.dbviews.NoteWithCurrentCommitView
-import com.example.raxar.data.models.Note
-import com.example.raxar.data.models.NoteCommit
 import com.example.raxar.util.DATABASE_NAME
 
 @Database(

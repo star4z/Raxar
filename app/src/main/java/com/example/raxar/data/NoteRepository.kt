@@ -1,10 +1,5 @@
 package com.example.raxar.data
 
-import com.example.raxar.data.dbviews.NoteWithCurrentCommitView
-import com.example.raxar.data.models.Note
-import com.example.raxar.data.models.NoteCommit
-import com.example.raxar.data.pojos.NoteWithCurrentCommit
-import com.example.raxar.data.pojos.NoteWithCurrentCommitAndChildNotes
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
@@ -18,7 +13,7 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
 
     fun getRootNotes(): Flow<List<NoteDto>> {
         return noteDao.getNotesWithCurrentCommitsForRootNode().map {
-            it.map(this::noteWithCurrentCommitToNoteDto)
+            it.map(this::noteWithCurrentCommitViewToNoteDto)
         }
     }
 
@@ -85,19 +80,6 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
             noteId = noteDto.noteId,
             parentNoteId = noteDto.parentNoteId,
             currentNoteCommitId = noteDto.noteCommitId
-        )
-    }
-
-    private fun noteWithCurrentCommitToNoteDto(noteWithCurrentCommit: NoteWithCurrentCommit): NoteDto {
-        return NoteDto(
-            noteId = noteWithCurrentCommit.note.noteId,
-            parentNoteId = noteWithCurrentCommit.note.parentNoteId,
-            noteCommitId = noteWithCurrentCommit.noteCommit.noteCommitId,
-            parentNoteCommitId = noteWithCurrentCommit.noteCommit.parentNoteCommitId,
-            time = noteWithCurrentCommit.noteCommit.time,
-            color = noteWithCurrentCommit.noteCommit.color,
-            title = noteWithCurrentCommit.noteCommit.title,
-            body = noteWithCurrentCommit.noteCommit.body
         )
     }
 

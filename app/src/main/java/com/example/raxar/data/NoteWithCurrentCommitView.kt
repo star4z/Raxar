@@ -1,4 +1,4 @@
-package com.example.raxar.data.dbviews
+package com.example.raxar.data
 
 import androidx.room.DatabaseView
 import java.time.ZonedDateTime

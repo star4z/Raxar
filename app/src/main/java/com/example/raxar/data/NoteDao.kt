@@ -1,18 +1,14 @@
 package com.example.raxar.data
 
 import androidx.room.*
-import com.example.raxar.data.models.Note
-import com.example.raxar.data.models.NoteCommit
-import com.example.raxar.data.pojos.NoteWithCurrentCommit
-import com.example.raxar.data.pojos.NoteWithCurrentCommitAndChildNotes
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class NoteDao {
 
     @Transaction
-    @Query("SELECT * FROM notes WHERE parentNoteId IS NULL")
-    abstract fun getNotesWithCurrentCommitsForRootNode(): Flow<List<NoteWithCurrentCommit>>
+    @Query("SELECT * FROM notes INNER JOIN note_commits ON notes.currentNoteCommitId = note_commits.noteCommitId WHERE notes.parentNoteId IS NULL")
+    abstract fun getNotesWithCurrentCommitsForRootNode(): Flow<List<NoteWithCurrentCommitView>>
 
     @Transaction
     @Query("SELECT * FROM notes WHERE noteId=:noteId LIMIT 1")
