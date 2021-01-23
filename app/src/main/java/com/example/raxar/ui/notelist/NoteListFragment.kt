@@ -45,7 +45,7 @@ class NoteListFragment : Fragment() {
         binding.recyclerview.adapter = adapter
 
         val swipeCallback = SwipeCallback(requireContext()) { viewHolder, _ ->
-            val removedNote = adapter.removeItem(viewHolder.adapterPosition)
+            val removedNote = adapter.getItem(viewHolder.adapterPosition)
             viewModel.deleteNote(removedNote)
         }
 
@@ -53,8 +53,7 @@ class NoteListFragment : Fragment() {
         itemTouchHelper.attachToRecyclerView(binding.recyclerview)
 
         viewModel.notes.removeObservers(viewLifecycleOwner)
-        viewModel.notes.observe(viewLifecycleOwner)
-        { notes ->
+        viewModel.notes.observe(viewLifecycleOwner) { notes ->
             adapter.submitList(notes.sortedByDescending { it.time })
         }
 

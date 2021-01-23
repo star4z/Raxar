@@ -35,6 +35,10 @@ class NoteListPreviewAdapter(val itemCallback: (NoteDto) -> Unit) :
         notifyItemRemoved(adapterPosition)
         return noteDto
     }
+
+    public override fun getItem(position: Int): NoteDto {
+        return super.getItem(position)
+    }
 }
 
 private class NoteDiffCallback : DiffUtil.ItemCallback<NoteDto>() {

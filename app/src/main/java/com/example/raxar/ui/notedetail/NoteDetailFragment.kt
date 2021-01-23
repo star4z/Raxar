@@ -54,7 +54,7 @@ class NoteDetailFragment : Fragment() {
         binding.children.adapter = adapter
 
         val swipeCallback = SwipeCallback(requireContext()) { viewHolder, _ ->
-            val removedNote = adapter.removeItem(viewHolder.adapterPosition)
+            val removedNote = adapter.getItem(viewHolder.adapterPosition)
             viewModel.deleteNote(removedNote)
         }
 
