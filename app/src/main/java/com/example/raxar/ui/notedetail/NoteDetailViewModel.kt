@@ -13,9 +13,10 @@ class NoteDetailViewModel @ViewModelInject constructor(
     private val noteRepository: NoteRepository,
     @Assisted private val savedStateHandle: SavedStateHandle,
     private val idGenerator: IdGenerator
-) :
-    ViewModel() {
-    private var created = false
+) : ViewModel() {
+
+    var needToCreate = false
+        private set
     private val noteIdFromState = savedStateHandle.get<Long>("noteId")!!
     private val parentNoteIdFromState = savedStateHandle.get<Long>("parentNoteId")!!
     private var noteId: Long = 0L
@@ -24,16 +25,16 @@ class NoteDetailViewModel @ViewModelInject constructor(
         if (noteId == 0L) {
             if (noteIdFromState == 0L) {
                 noteId = idGenerator.genId()
-                created = true
+                needToCreate = true
             } else {
                 noteId = noteIdFromState
-                created = false
+                needToCreate = false
             }
         }
     }
 
     var note: LiveData<NoteDto?> =
-        if (created) {
+        if (needToCreate) {
             MutableLiveData(NoteDto(noteId))
         } else {
             noteRepository.getNote(noteId).asLiveData()
@@ -43,10 +44,10 @@ class NoteDetailViewModel @ViewModelInject constructor(
         val noteDto = getNoteDto(noteDetailDto)
         noteDto?.let {
             viewModelScope.launch(Dispatchers.IO) {
-                if (created) {
+                if (needToCreate) {
                     noteRepository.insertNote(noteDto)
                     note = noteRepository.getNote(noteId).asLiveData()
-                    created = false
+                    needToCreate = false
                 } else {
                     noteRepository.updateNote(noteDto)
                 }

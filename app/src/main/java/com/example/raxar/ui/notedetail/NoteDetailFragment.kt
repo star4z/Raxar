@@ -13,6 +13,7 @@ import com.example.raxar.data.NoteDto
 import com.example.raxar.databinding.NoteDetailFragmentBinding
 import com.example.raxar.ui.commons.NoteListPreviewAdapter
 import com.example.raxar.util.SwipeCallback
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -96,7 +97,21 @@ class NoteDetailFragment : Fragment() {
 
     override fun onStop() {
         super.onStop()
-        saveNote()
+        if (hasBeenModified()) {
+            saveNote()
+        } else {
+            Snackbar.make(
+                requireActivity().window.decorView.rootView,
+                "Discarded empty note.",
+                Snackbar.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    private fun hasBeenModified(): Boolean {
+        return !viewModel.needToCreate ||
+                binding.title.text.toString().isNotEmpty() ||
+                binding.body.text.toString().isNotEmpty()
     }
 
     private fun saveNote(): NoteDto? {
