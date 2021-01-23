@@ -9,9 +9,10 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.raxar.R
 
-abstract class SwipeCallback constructor(context: Context) :
-    ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
-
+class SwipeCallback constructor(
+    context: Context,
+    val swipeCallback: (RecyclerView.ViewHolder, Int) -> Unit
+) : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
 
     private val iconRight = ContextCompat.getDrawable(context, R.drawable.ic_baseline_delete_24)!!
     private val iconLeft = ContextCompat.getDrawable(context, R.drawable.ic_baseline_delete_24)!!
@@ -104,5 +105,18 @@ abstract class SwipeCallback constructor(context: Context) :
         }
 
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+    }
+
+    override fun getMovementFlags(
+        recyclerView: RecyclerView,
+        viewHolder: RecyclerView.ViewHolder
+    ): Int {
+        return makeMovementFlags(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT)
+    }
+
+    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+        if (direction == ItemTouchHelper.LEFT || direction == ItemTouchHelper.RIGHT) {
+            swipeCallback(viewHolder, direction)
+        }
     }
 }

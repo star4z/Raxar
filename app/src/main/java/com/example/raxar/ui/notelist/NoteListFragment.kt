@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.RecyclerView
 import com.example.raxar.databinding.NoteListFragmentBinding
 import com.example.raxar.ui.commons.NoteListPreviewAdapter
 import com.example.raxar.util.SwipeCallback
@@ -45,27 +44,17 @@ class NoteListFragment : Fragment() {
         }
         binding.recyclerview.adapter = adapter
 
-        val swipeCallback: SwipeCallback = object : SwipeCallback(requireContext()) {
-            override fun getMovementFlags(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder
-            ): Int {
-                return makeMovementFlags(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT)
-            }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                if (direction == ItemTouchHelper.LEFT || direction == ItemTouchHelper.RIGHT) {
-                    val removedNote = adapter.removeItem(viewHolder.adapterPosition)
-                    viewModel.deleteNote(removedNote)
-                }
-            }
+        val swipeCallback = SwipeCallback(requireContext()) { viewHolder, _ ->
+            val removedNote = adapter.removeItem(viewHolder.adapterPosition)
+            viewModel.deleteNote(removedNote)
         }
 
         val itemTouchHelper = ItemTouchHelper(swipeCallback)
         itemTouchHelper.attachToRecyclerView(binding.recyclerview)
 
         viewModel.notes.removeObservers(viewLifecycleOwner)
-        viewModel.notes.observe(viewLifecycleOwner) { notes ->
+        viewModel.notes.observe(viewLifecycleOwner)
+        { notes ->
             adapter.submitList(notes.sortedByDescending { it.time })
         }
 
