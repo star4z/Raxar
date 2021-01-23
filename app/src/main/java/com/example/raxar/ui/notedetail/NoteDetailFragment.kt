@@ -97,22 +97,29 @@ class NoteDetailFragment : Fragment() {
 
     override fun onStop() {
         super.onStop()
-        if (hasBeenModified()) {
-            saveNote()
-        } else {
-            Snackbar.make(
-                requireActivity().window.decorView.rootView,
-                "Discarded empty note.",
-                Snackbar.LENGTH_LONG
-            ).show()
+        when {
+            isNewAndEmpty() -> {
+                Snackbar.make(
+                    requireActivity().window.decorView.rootView,
+                    "Discarded empty note.",
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
+            hasBeenModified() -> {
+                saveNote()
+            }
         }
     }
 
-    private fun hasBeenModified(): Boolean {
-        return !viewModel.needToCreate ||
-                binding.title.text.toString().isNotEmpty() ||
-                binding.body.text.toString().isNotEmpty()
-    }
+    private fun hasBeenModified() = viewModel.needToCreate ||
+            viewModel.note.value?.let {
+                binding.title.text.toString() != it.title ||
+                        binding.body.text.toString() != it.body
+            } ?: false
+
+    private fun isNewAndEmpty() = viewModel.needToCreate &&
+            binding.title.text.toString().isEmpty() &&
+            binding.body.text.toString().isEmpty()
 
     private fun saveNote(): NoteDto? {
         return if (!saved) {
