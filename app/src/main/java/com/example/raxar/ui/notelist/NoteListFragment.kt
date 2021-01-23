@@ -8,10 +8,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
+import com.example.raxar.R
 import com.example.raxar.databinding.NoteListFragmentBinding
 import com.example.raxar.ui.commons.NoteListPreviewAdapter
 import com.example.raxar.util.SwipeCallback
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 
 @AndroidEntryPoint
@@ -45,8 +48,19 @@ class NoteListFragment : Fragment() {
         binding.recyclerview.adapter = adapter
 
         val swipeCallback = SwipeCallback(requireContext()) { viewHolder, _ ->
-            val removedNote = adapter.getItem(viewHolder.adapterPosition)
-            viewModel.deleteNote(removedNote)
+            val (position, noteDto) = adapter.removeItem(viewHolder as NoteListPreviewAdapter.ViewHolder)
+            val snackbar = Snackbar.make(binding.root, R.string.deleted_note, Snackbar.LENGTH_LONG)
+            snackbar.setAction(R.string.undo) {
+                Timber.d("Undo pressed.")
+                adapter.addItem(position, noteDto)
+            }.addCallback(object : Snackbar.Callback() {
+                override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                    if (event != DISMISS_EVENT_ACTION) {
+                        Timber.d("Snackbar was not dismissed by touch event.")
+                        viewModel.deleteNote(noteDto)
+                    }
+                }
+            }).show()
         }
 
         val itemTouchHelper = ItemTouchHelper(swipeCallback)

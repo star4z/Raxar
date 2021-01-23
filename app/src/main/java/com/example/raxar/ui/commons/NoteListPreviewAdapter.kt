@@ -11,8 +11,15 @@ import com.example.raxar.databinding.NoteListPreviewBinding
 class NoteListPreviewAdapter(val itemCallback: (NoteDto) -> Unit) :
     ListAdapter<NoteDto, NoteListPreviewAdapter.ViewHolder>(NoteDiffCallback()) {
 
-    class ViewHolder(val noteListPreviewBinding: NoteListPreviewBinding) :
-        RecyclerView.ViewHolder(noteListPreviewBinding.root)
+    inner class ViewHolder(private val binding: NoteListPreviewBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bindTo(noteDto: NoteDto) {
+            binding.text.text = noteDto.title
+            binding.root.setOnClickListener {
+                itemCallback(noteDto)
+            }
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
@@ -21,19 +28,21 @@ class NoteListPreviewAdapter(val itemCallback: (NoteDto) -> Unit) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = getItem(position)
-        holder.noteListPreviewBinding.text.text = item.title
-        holder.itemView.setOnClickListener {
-            itemCallback(item)
-        }
+        holder.bindTo(getItem(position))
     }
 
-    fun removeItem(adapterPosition: Int): NoteDto {
+    fun removeItem(viewHolder: ViewHolder): Pair<Int, NoteDto> {
         val list = mutableListOf(*currentList.toTypedArray())
+        val adapterPosition = viewHolder.adapterPosition
         val noteDto = list.removeAt(adapterPosition)
         submitList(list)
-        notifyItemRemoved(adapterPosition)
-        return noteDto
+        return Pair(adapterPosition, noteDto)
+    }
+
+    fun addItem(position: Int, noteDto: NoteDto) {
+        val list = mutableListOf(*currentList.toTypedArray())
+        list.add(position, noteDto)
+        submitList(list)
     }
 
     public override fun getItem(position: Int): NoteDto {
