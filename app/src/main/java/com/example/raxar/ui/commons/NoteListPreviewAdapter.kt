@@ -1,31 +1,28 @@
 package com.example.raxar.ui.commons
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.raxar.R
 import com.example.raxar.data.NoteDto
-import kotlinx.android.synthetic.main.note_list_preview.view.*
+import com.example.raxar.databinding.NoteListPreviewBinding
 
 class NoteListPreviewAdapter(val itemCallback: (NoteDto) -> Unit) :
     ListAdapter<NoteDto, NoteListPreviewAdapter.ViewHolder>(NoteDiffCallback()) {
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    class ViewHolder(val noteListPreviewBinding: NoteListPreviewBinding) :
+        RecyclerView.ViewHolder(noteListPreviewBinding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
-            LayoutInflater
-                .from(parent.context)
-                .inflate(R.layout.note_list_preview, parent, false)
+            NoteListPreviewBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         )
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
-        holder.itemView.text.text = item.title
+        holder.noteListPreviewBinding.text.text = item.title
         holder.itemView.setOnClickListener {
             itemCallback(item)
         }

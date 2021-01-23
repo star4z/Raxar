@@ -13,7 +13,6 @@ import com.example.raxar.databinding.NoteListFragmentBinding
 import com.example.raxar.ui.commons.NoteListPreviewAdapter
 import com.example.raxar.util.SwipeCallback
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.note_list_fragment.*
 
 
 @AndroidEntryPoint
@@ -70,7 +69,7 @@ class NoteListFragment : Fragment() {
             adapter.submitList(notes.sortedByDescending { it.time })
         }
 
-        add_note.setOnClickListener {
+        binding.addNote.setOnClickListener {
             val action = NoteListFragmentDirections.actionNoteListFragmentToNoteDetailFragment()
             findNavController().navigate(action)
         }
