@@ -15,7 +15,7 @@ abstract class NoteDao {
     abstract fun getNoteWithCurrentCommitAndChildNotes(noteId: Long): Flow<NoteWithCurrentCommitAndChildNotes>
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    abstract fun insertNote(note: Note)
+    abstract fun insertNote(note: Note): Long
 
     @Update
     abstract fun updateNote(note: Note)
@@ -28,8 +28,9 @@ abstract class NoteDao {
 
     @Transaction
     open fun insertNoteAndNoteCommit(note: Note, currentNoteCommit: NoteCommit) {
-        insertNote(note)
-        insertNoteCommit(currentNoteCommit)
+        val noteId = insertNote(note)
+        val noteCommit = currentNoteCommit.copy(noteId = noteId)
+        insertNoteCommit(noteCommit)
     }
 
     @Transaction
