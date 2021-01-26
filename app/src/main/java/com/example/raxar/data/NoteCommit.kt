@@ -18,7 +18,7 @@ import java.time.ZonedDateTime
         Index("noteId"),
     ]
 )
-class NoteCommit(
+data class NoteCommit(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "noteCommitId") val noteCommitId: Long = 0,
     @ColumnInfo(name = "noteId") val noteId: Long = 0,
     @ColumnInfo(name = "parentNoteCommitId") val parentNoteCommitId: Long = 0,
