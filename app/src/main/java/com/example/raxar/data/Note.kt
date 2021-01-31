@@ -16,8 +16,8 @@ import androidx.room.ForeignKey.CASCADE
             entity = Note::class,
             parentColumns = ["noteId"],
             childColumns = ["parentNoteId"],
-            deferred = true,
-            onDelete = CASCADE
+            onDelete = CASCADE,
+            deferred = true
         )
     ],
     indices = [

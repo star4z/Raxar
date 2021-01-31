@@ -13,7 +13,7 @@ data class NoteWithCurrentCommitView(
     val noteId: Long,
     val parentNoteId: Long?,
     val noteCommitId: Long,
-    val parentNoteCommitId: Long,
+    val parentNoteCommitId: Long?,
     val time: ZonedDateTime,
     val color: String,
     val title: String,
