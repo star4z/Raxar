@@ -12,7 +12,7 @@ abstract class NoteDao {
 
     @Transaction
     @Query("SELECT * FROM notes WHERE noteId=:noteId LIMIT 1")
-    abstract fun getNoteWithCurrentCommitAndChildNotes(noteId: Long): Flow<NoteWithCurrentCommitAndChildNotes>
+    abstract fun getNoteWithCurrentCommitAndChildNotes(noteId: Long): Flow<NoteWithCurrentCommitAndChildNotes?>
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     abstract fun insertNote(note: Note): Long
@@ -21,22 +21,25 @@ abstract class NoteDao {
     abstract fun updateNote(note: Note)
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    abstract fun insertNoteCommit(noteCommit: NoteCommit)
+    abstract fun insertNoteCommit(noteCommit: NoteCommit): Long
 
     @Delete
     abstract fun deleteNote(note: Note)
 
     @Transaction
-    open fun insertNoteAndNoteCommit(note: Note, currentNoteCommit: NoteCommit) {
+    open fun createNote(parentNoteId: Long?): Flow<NoteWithCurrentCommitAndChildNotes?> {
+        val note = Note(parentNoteId = parentNoteId)
         val noteId = insertNote(note)
-        val noteCommit = currentNoteCommit.copy(noteId = noteId)
-        insertNoteCommit(noteCommit)
+        val noteCommit = NoteCommit(noteId = noteId)
+        val noteCommitId = insertNoteCommit(noteCommit)
+        updateNote(note.copy(noteId = noteId, currentNoteCommitId = noteCommitId))
+        return getNoteWithCurrentCommitAndChildNotes(noteId)
     }
 
     @Transaction
     open fun updateNoteAndInsertNoteCommit(note: Note, currentNoteCommit: NoteCommit) {
-        updateNote(note)
-        insertNoteCommit(currentNoteCommit)
+        val noteCommitId = insertNoteCommit(currentNoteCommit)
+        updateNote(note.copy(currentNoteCommitId = noteCommitId))
     }
 
 }

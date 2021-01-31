@@ -28,5 +28,5 @@ import androidx.room.ForeignKey.CASCADE
 data class Note(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "noteId") val noteId: Long = 0,
     @ColumnInfo(name = "parentNoteId") val parentNoteId: Long? = null,
-    @ColumnInfo(name = "currentNoteCommitId") val currentNoteCommitId: Long
+    @ColumnInfo(name = "currentNoteCommitId") val currentNoteCommitId: Long = 0
 )

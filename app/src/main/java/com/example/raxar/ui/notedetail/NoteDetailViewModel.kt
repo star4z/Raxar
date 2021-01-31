@@ -5,52 +5,36 @@ import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
 import com.example.raxar.data.NoteDto
 import com.example.raxar.data.NoteRepository
-import com.example.raxar.util.IdGenerator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class NoteDetailViewModel @ViewModelInject constructor(
     private val noteRepository: NoteRepository,
     @Assisted private val savedStateHandle: SavedStateHandle,
-    private val idGenerator: IdGenerator
 ) : ViewModel() {
 
     var needToCreate = false
         private set
     private val noteIdFromState = savedStateHandle.get<Long>("noteId")!!
     private val parentNoteIdFromState = savedStateHandle.get<Long>("parentNoteId")!!
-    private var noteId: Long = 0L
 
-    init {
-        if (noteId == 0L) {
-            if (noteIdFromState == 0L) {
-                noteId = idGenerator.genId()
-                needToCreate = true
-            } else {
-                noteId = noteIdFromState
-                needToCreate = false
-            }
+
+    val note: LiveData<NoteDto?> = if (noteIdFromState == 0L) {
+        runBlocking(Dispatchers.IO) {
+            noteRepository.createNote(parentNoteIdFromState.getDefaultForId())
+                .asLiveData(Dispatchers.IO)
         }
+    } else {
+        noteRepository.getNote(noteIdFromState).asLiveData(Dispatchers.IO)
     }
 
-    var note: LiveData<NoteDto?> =
-        if (needToCreate) {
-            MutableLiveData(NoteDto(noteId))
-        } else {
-            noteRepository.getNote(noteId).asLiveData()
-        }
 
     fun saveNote(noteDetailDto: NoteDetailDto): NoteDto? {
         val noteDto = getNoteDto(noteDetailDto)
         noteDto?.let {
             viewModelScope.launch(Dispatchers.IO) {
-                if (needToCreate) {
-                    noteRepository.insertNote(noteDto)
-                    note = noteRepository.getNote(noteId).asLiveData()
-                    needToCreate = false
-                } else {
-                    noteRepository.updateNote(noteDto)
-                }
+                noteRepository.updateNote(noteDto)
             }
         }
         return noteDto
@@ -60,8 +44,7 @@ class NoteDetailViewModel @ViewModelInject constructor(
         note.value?.let { noteDto: NoteDto ->
             return NoteDto(
                 noteId = noteDto.noteId,
-                parentNoteId = if (parentNoteIdFromState != 0L) parentNoteIdFromState else null,
-                noteCommitId = idGenerator.genId(),
+                parentNoteId = noteDto.parentNoteId,
                 parentNoteCommitId = noteDto.noteCommitId,
                 title = noteDetailDto.title,
                 body = noteDetailDto.body
@@ -76,4 +59,6 @@ class NoteDetailViewModel @ViewModelInject constructor(
             noteRepository.deleteNote(noteDto)
         }
     }
+
+    private fun Long.getDefaultForId(): Long? = if (this != 0L) this else null
 }

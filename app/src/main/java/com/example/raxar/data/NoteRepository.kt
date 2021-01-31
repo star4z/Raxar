@@ -23,10 +23,9 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
             .map(this::nullableNoteWithCurrentCommitAndChildNotesToNoteDto)
     }
 
-    fun insertNote(noteDto: NoteDto) {
-        val note = noteDtoToNote(noteDto)
-        val commit = noteDtoToNoteCommit(noteDto)
-        noteDao.insertNoteAndNoteCommit(note, commit)
+    fun createNote(parentNoteId: Long?): Flow<NoteDto?> {
+        return noteDao.createNote(parentNoteId)
+            .map(this::nullableNoteWithCurrentCommitAndChildNotesToNoteDto)
     }
 
     fun updateNote(noteDto: NoteDto) {
@@ -47,6 +46,7 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
     private fun nullableNoteWithCurrentCommitAndChildNotesToNoteDto(
         noteWithCurrentCommitAndChildNotes: NoteWithCurrentCommitAndChildNotes?
     ): NoteDto? {
+        Timber.d("note(+)=${noteWithCurrentCommitAndChildNotes}")
         noteWithCurrentCommitAndChildNotes?.let {
             return NoteDto(
                 noteId = noteWithCurrentCommitAndChildNotes.note.noteId,
