@@ -12,8 +12,18 @@ open class Graph(notes: List<NoteDto>) : Iterable<Node> {
     var distanceFromOriginXToWidthRatio = 1.0 / 2.0
     var nodeDistanceFromOrigin = 1.0 // default val is unused
     var nodeRadius = 100.0
-    var width = 1.0 // default val is unused
-    var height = 1.0 // default is unused
+        set(value) {
+            nodeRadiusWithPadding = value + padding
+            field = value
+        }
+    var padding = 20.0
+        set(value) {
+            nodeRadiusWithPadding = nodeRadius + value
+            field = value
+        }
+    private var nodeRadiusWithPadding = nodeRadius + padding
+    private var width = 1.0 // default val is unused
+    private var height = 1.0 // default is unused
 
     var origin = Node()
 
@@ -23,9 +33,9 @@ open class Graph(notes: List<NoteDto>) : Iterable<Node> {
 
     private fun arrange() {
         val maxAngleFromVertical =
-            asin((width * distanceFromOriginXToWidthRatio - nodeRadius) / (height * distanceFromOriginYToHeightRatio))
+            asin((width * distanceFromOriginXToWidthRatio - nodeRadiusWithPadding) / (height * distanceFromOriginYToHeightRatio))
         val numberOfPossibleNodesForCircle =
-            PI / asin(nodeRadius / (distanceFromOriginYToHeightRatio * height))
+            PI / asin(nodeRadiusWithPadding / (distanceFromOriginYToHeightRatio * height))
         val numberOfNodesToDisplay =
             floor(numberOfPossibleNodesForCircle * maxAngleFromVertical / PI)
 

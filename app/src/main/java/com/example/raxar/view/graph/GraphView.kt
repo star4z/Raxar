@@ -54,7 +54,10 @@ class GraphView : View {
                         paint
                     )
 
-                    canvas.drawCircle(node.xPos.toFloat(), node.yPos.toFloat(), 100f, paint)
+                    canvas.drawCircle(
+                        node.xPos.toFloat(), node.yPos.toFloat(),
+                        graph.nodeRadius.toFloat(), paint
+                    )
 
                     node.title?.let { title ->
                         paint.color = Color.WHITE
