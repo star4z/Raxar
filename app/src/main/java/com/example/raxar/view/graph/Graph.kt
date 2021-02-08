@@ -24,12 +24,8 @@ open class Graph(notes: List<NoteDto>) : Iterable<Node> {
             nodeRadiusWithPadding = nodeRadius + value
             field = value
         }
-    var totalRings = 3
-        set(value) {
-            if (value in 0..3) {
-                field = value
-            }
-        }
+    var rotation = 0.0
+    var rotating = false
 
     private var nodeRadiusWithPadding = nodeRadius + padding
     private var width = 1.0 // default val is unused
@@ -50,42 +46,17 @@ open class Graph(notes: List<NoteDto>) : Iterable<Node> {
             (numberOfPossibleNodesForCircle * maxAngleFromVertical / PI).toInt()
         val angleBetweenNodes = maxAngleFromVertical * 2 / numberOfNodesToDisplay
 
-//        val nodeDeque = ArrayDeque(nodes)
-//
-//        for (ringN in 0 until totalRings) {
-//            val numberOfNodesToPop =
-//                if (ringN == 0) numberOfNodesToDisplay else numberOfNodesToDisplay - 1
-//            val startingAngle =
-//                if (ringN == 0) -maxAngleFromVertical else -maxAngleFromVertical + 0.5 * angleBetweenNodes
-//            for (index in 0 until numberOfNodesToPop) {
-//                nodeDeque.removeLastOrNull()?.let { noteNode ->
-//                    noteNode.state.visible = true
-//                    val theta = angleBetweenNodes * index - startingAngle
-//                    noteNode.xPos =
-//                        (nodeDistanceFromOrigin - nodeRadiusWithPadding) * sin(theta) + origin.xPos
-//                    noteNode.yPos =
-//                        (nodeDistanceFromOrigin - nodeRadiusWithPadding) * cos(theta) + origin.yPos
-//                }
-//            }
-//        }
-//
-//        // Set all remaining nodes as invisible
-//        while (!nodeDeque.isEmpty()) {
-//            val noteNode = nodeDeque.removeLast()
-//            noteNode.state.visible = false
-//        }
-
         nodes.forEachIndexed { index, noteNode ->
             noteNode.state.visible = true
             when (index) {
                 in 0..numberOfNodesToDisplay -> {
-                    val theta = angleBetweenNodes * index - maxAngleFromVertical
+                    val theta = angleBetweenNodes * index - maxAngleFromVertical + rotation
                     noteNode.xPos = nodeDistanceFromOrigin * sin(theta) + origin.xPos
                     noteNode.yPos = nodeDistanceFromOrigin * cos(theta) + origin.yPos
                 }
                 in numberOfNodesToDisplay + 1..numberOfNodesToDisplay * 2 -> {
                     val theta =
-                        angleBetweenNodes * (index - numberOfNodesToDisplay - 1) - maxAngleFromVertical + 0.5 * angleBetweenNodes
+                        angleBetweenNodes * (index - (numberOfNodesToDisplay + 1)) - maxAngleFromVertical + 0.5 * angleBetweenNodes + rotation
                     noteNode.xPos =
                         (nodeDistanceFromOrigin - 2 * nodeRadiusWithPadding) * sin(theta) + origin.xPos
                     noteNode.yPos =
@@ -93,7 +64,7 @@ open class Graph(notes: List<NoteDto>) : Iterable<Node> {
                 }
                 in numberOfNodesToDisplay * 2 + 1..numberOfNodesToDisplay * 3 -> {
                     val theta =
-                        angleBetweenNodes * (index - (numberOfNodesToDisplay * 2 + 1)) - maxAngleFromVertical + 0.5 * angleBetweenNodes
+                        angleBetweenNodes * (index - (numberOfNodesToDisplay * 2 + 1)) - maxAngleFromVertical + 0.5 * angleBetweenNodes + rotation
                     noteNode.xPos =
                         (nodeDistanceFromOrigin + 2 * nodeRadiusWithPadding) * sin(theta) + origin.xPos
                     noteNode.yPos =

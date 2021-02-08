@@ -6,8 +6,10 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.View
 import com.example.raxar.data.NoteDto
+import timber.log.Timber
 import kotlin.math.pow
 
 class GraphView : View {
@@ -15,6 +17,11 @@ class GraphView : View {
     private val paint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val graph: Graph
     private val textBounds = Rect()
+
+    private var lastX = 0f
+    private var lastY = 0f
+
+    val rotationGestureScaleFactor = 150.0
 
     constructor(context: Context?) : this(context, null, 0, 0)
     constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0, 0)
@@ -76,24 +83,32 @@ class GraphView : View {
         }
     }
 
-//    override fun onTouchEvent(event: MotionEvent): Boolean {
-//        when (event.action) {
-//            MotionEvent.ACTION_DOWN -> {
-//                for (node in graph) {
-//                    if (inCircle(event.x, event.y, node.xPos, node.yPos, graph.nodeRadius)) {
-//                        node.state.moving = true
-//                    }
-//                }
-//            }
-//            else -> {
-//                for (node in graph) {
-//                    node.state.moving = false
-//                }
-//            }
-//        }
-//
-//        return true
-//    }
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                graph.rotating = true
+                lastX = event.x
+                lastY = event.y
+            }
+            MotionEvent.ACTION_MOVE -> {
+                if (graph.rotating) {
+                    graph.rotation -= (lastX - event.x) / rotationGestureScaleFactor
+                }
+                lastX = event.x
+                lastY = event.y
+                invalidate()
+            }
+            MotionEvent.ACTION_UP -> {
+                graph.rotating = false
+                lastX = event.x
+                lastY = event.y
+            }
+        }
+
+        Timber.d("rotation=${graph.rotation}")
+
+        return true
+    }
 
     private fun inCircle(
         x: Float,
