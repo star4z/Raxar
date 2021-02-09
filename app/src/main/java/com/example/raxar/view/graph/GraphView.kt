@@ -118,6 +118,8 @@ class GraphView : View {
                 lastAngle = getAngle(event.x, event.y)
                 lastX = event.x
                 lastY = event.y
+                graph.snapToNearest()
+                invalidate()
             }
         }
 

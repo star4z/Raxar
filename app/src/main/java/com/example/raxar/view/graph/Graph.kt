@@ -1,12 +1,13 @@
 package com.example.raxar.view.graph
 
 import com.example.raxar.data.NoteDto
-import kotlin.math.PI
-import kotlin.math.asin
-import kotlin.math.cos
-import kotlin.math.sin
+import kotlin.math.*
 
 open class Graph(notes: List<NoteDto>) : Iterable<Node> {
+    private var angleBetweenNodes: Double = 0.0
+    private var numberOfNodesToDisplay: Int = 0
+    private var numberOfPossibleNodesForCircle: Double = 0.0
+    private var maxAngleFromVertical: Double = 0.0
     private val nodes = notes.map { note -> Node(note) }
 
     var widthToOriginXRatio = 1.0 / 2.0
@@ -38,14 +39,6 @@ open class Graph(notes: List<NoteDto>) : Iterable<Node> {
     }
 
     private fun arrange() {
-        val maxAngleFromVertical =
-            asin((width * distanceFromOriginXToWidthRatio - nodeRadiusWithPadding) / (height * distanceFromOriginYToHeightRatio))
-        val numberOfPossibleNodesForCircle =
-            PI / asin(nodeRadiusWithPadding / (distanceFromOriginYToHeightRatio * height))
-        val numberOfNodesToDisplay =
-            (numberOfPossibleNodesForCircle * maxAngleFromVertical / PI).toInt()
-        val angleBetweenNodes = maxAngleFromVertical * 2 / numberOfNodesToDisplay
-
         nodes.forEachIndexed { index, noteNode ->
             noteNode.state.visible = true
             when (index) {
@@ -85,7 +78,20 @@ open class Graph(notes: List<NoteDto>) : Iterable<Node> {
         this.width = width.toDouble()
         this.height = height.toDouble()
         origin = Node(width * widthToOriginXRatio, height * heightToOriginYRatio)
+
         nodeDistanceFromOrigin = distanceFromOriginYToHeightRatio * height
+        maxAngleFromVertical =
+            asin((width * distanceFromOriginXToWidthRatio - nodeRadiusWithPadding) / (height * distanceFromOriginYToHeightRatio))
+        numberOfPossibleNodesForCircle =
+            PI / asin(nodeRadiusWithPadding / (distanceFromOriginYToHeightRatio * height))
+        numberOfNodesToDisplay =
+            (numberOfPossibleNodesForCircle * maxAngleFromVertical / PI).toInt()
+        angleBetweenNodes = maxAngleFromVertical * 2 / numberOfNodesToDisplay
+
         arrange()
+    }
+
+    fun snapToNearest() {
+        rotation = (rotation / angleBetweenNodes).roundToInt() * angleBetweenNodes
     }
 }
