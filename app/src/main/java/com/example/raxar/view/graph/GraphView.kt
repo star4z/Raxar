@@ -90,18 +90,18 @@ class GraphView : View {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        when (event.action) {
+        Timber.d("action=${event.action}")
+        val eventHandled = when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 graph.rotating = true
                 lastAngle = getAngle(event.x, event.y)
                 lastX = event.x
                 lastY = event.y
+                true
             }
             MotionEvent.ACTION_MOVE -> {
                 val angle = getAngle(event.x, event.y)
-                Timber.d("angle=$angle")
                 var angleDifference = angle - lastAngle
-                Timber.d("angleDifference=$angleDifference")
                 if (graph.rotating) {
                     if (abs(angleDifference) > PI / 2) {
                         angleDifference -= PI
@@ -112,20 +112,20 @@ class GraphView : View {
                 lastX = event.x
                 lastY = event.y
                 invalidate()
+                true
             }
-            MotionEvent.ACTION_UP -> {
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_OUTSIDE -> {
                 graph.rotating = false
                 lastAngle = getAngle(event.x, event.y)
                 lastX = event.x
                 lastY = event.y
                 graph.snapToNearest()
                 invalidate()
+                true
             }
+            else -> super.onTouchEvent(event)
         }
-
-        Timber.d("rotation=${graph.rotation}")
-
-        return true
+        return eventHandled
     }
 
     private fun getAngle(x: Float, y: Float): Double {
