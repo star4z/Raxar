@@ -1,5 +1,6 @@
 package com.example.raxar.view.graph
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -10,6 +11,9 @@ import android.view.MotionEvent
 import android.view.View
 import com.example.raxar.data.NoteDto
 import timber.log.Timber
+import kotlin.math.PI
+import kotlin.math.abs
+import kotlin.math.atan
 import kotlin.math.pow
 
 class GraphView : View {
@@ -20,8 +24,9 @@ class GraphView : View {
 
     private var lastX = 0f
     private var lastY = 0f
+    private var lastAngle = 0.0
 
-    val rotationGestureScaleFactor = 150.0
+    var rotationGestureScaleFactor = 150.0
 
     constructor(context: Context?) : this(context, null, 0, 0)
     constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0, 0)
@@ -83,23 +88,34 @@ class GraphView : View {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 graph.rotating = true
+                lastAngle = getAngle(event.x, event.y)
                 lastX = event.x
                 lastY = event.y
             }
             MotionEvent.ACTION_MOVE -> {
+                val angle = getAngle(event.x, event.y)
+                Timber.d("angle=$angle")
+                var angleDifference = angle - lastAngle
+                Timber.d("angleDifference=$angleDifference")
                 if (graph.rotating) {
-                    graph.rotation -= (lastX - event.x) / rotationGestureScaleFactor
+                    if (abs(angleDifference) > PI / 2) {
+                        angleDifference -= PI
+                    }
+                    graph.rotation += angleDifference
                 }
+                lastAngle = angle
                 lastX = event.x
                 lastY = event.y
                 invalidate()
             }
             MotionEvent.ACTION_UP -> {
                 graph.rotating = false
+                lastAngle = getAngle(event.x, event.y)
                 lastX = event.x
                 lastY = event.y
             }
@@ -108,6 +124,12 @@ class GraphView : View {
         Timber.d("rotation=${graph.rotation}")
 
         return true
+    }
+
+    private fun getAngle(x: Float, y: Float): Double {
+        val height = y - graph.origin.yPos
+        val width = x - graph.origin.xPos
+        return atan(width / height)
     }
 
     private fun inCircle(
