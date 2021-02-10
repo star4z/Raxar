@@ -10,6 +10,7 @@ open class Graph(notes: List<NoteDto>) : Iterable<Node> {
     private var maxAngleFromVertical: Double = 0.0
     private val nodes = notes.map { note -> Node(note) }
 
+    var rows = 3
     var widthToOriginXRatio = 1.0 / 2.0
     var heightToOriginYRatio = 1.0 / 5.0
     var distanceFromOriginYToHeightRatio = 11.0 / 20.0
@@ -39,33 +40,19 @@ open class Graph(notes: List<NoteDto>) : Iterable<Node> {
     }
 
     private fun arrange() {
-        nodes.forEachIndexed { index, noteNode ->
-            noteNode.state.visible = true
-            when (index) {
-                in 0..numberOfNodesToDisplay -> {
-                    val theta = angleBetweenNodes * index - maxAngleFromVertical + rotation
-                    noteNode.xPos = nodeDistanceFromOrigin * sin(theta) + origin.xPos
-                    noteNode.yPos = nodeDistanceFromOrigin * cos(theta) + origin.yPos
-                }
-                in numberOfNodesToDisplay + 1..numberOfNodesToDisplay * 2 -> {
-                    val theta =
-                        angleBetweenNodes * (index - (numberOfNodesToDisplay + 1)) - maxAngleFromVertical + 0.5 * angleBetweenNodes + rotation
-                    noteNode.xPos =
-                        (nodeDistanceFromOrigin - 2 * nodeRadiusWithPadding) * sin(theta) + origin.xPos
-                    noteNode.yPos =
-                        (nodeDistanceFromOrigin - 2 * nodeRadiusWithPadding) * cos(theta) + origin.yPos
-                }
-                in numberOfNodesToDisplay * 2 + 1..numberOfNodesToDisplay * 3 -> {
-                    val theta =
-                        angleBetweenNodes * (index - (numberOfNodesToDisplay * 2 + 1)) - maxAngleFromVertical + 0.5 * angleBetweenNodes + rotation
-                    noteNode.xPos =
-                        (nodeDistanceFromOrigin + 2 * nodeRadiusWithPadding) * sin(theta) + origin.xPos
-                    noteNode.yPos =
-                        (nodeDistanceFromOrigin + 2 * nodeRadiusWithPadding) * cos(theta) + origin.yPos
-                }
-                else -> {
-                    noteNode.state.visible = false
-                }
+        val nodeStacks = Array<ArrayDeque<Node>>(rows) { ArrayDeque() }
+        nodes.forEachIndexed { index, node ->
+            nodeStacks[index % rows].addLast(node)
+        }
+
+        nodeStacks.forEachIndexed { row, nodeStack ->
+            val nodeDistance = nodeDistanceFromOrigin + 2 * (row - 1) * nodeRadiusWithPadding
+            nodeStack.forEachIndexed { col, node ->
+                node.state.visible = true
+                val theta =
+                    angleBetweenNodes * col - maxAngleFromVertical + 0.5 * angleBetweenNodes * (row - 1) + rotation
+                node.xPos = nodeDistance * sin(theta) + origin.xPos
+                node.yPos = nodeDistance * cos(theta) + origin.yPos
             }
         }
     }

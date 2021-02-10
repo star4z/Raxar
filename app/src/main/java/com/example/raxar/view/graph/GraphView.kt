@@ -46,7 +46,7 @@ class GraphView : View {
         paint.color = Color.RED
         paint.textAlign = Paint.Align.CENTER
 
-        graph = Graph((1..20).map { NoteDto(title = "Title $it") })
+        graph = Graph((1..100).map { NoteDto(title = "Title $it") })
     }
 
     private val nodeTextSize = 40f
