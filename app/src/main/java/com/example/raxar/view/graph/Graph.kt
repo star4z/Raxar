@@ -1,6 +1,7 @@
 package com.example.raxar.view.graph
 
 import com.example.raxar.data.NoteDto
+import timber.log.Timber
 import kotlin.math.*
 
 open class Graph(notes: List<NoteDto>) : Iterable<Node> {
@@ -42,15 +43,19 @@ open class Graph(notes: List<NoteDto>) : Iterable<Node> {
     private fun arrange() {
         val nodeStacks = Array<ArrayDeque<Node>>(rows) { ArrayDeque() }
         nodes.forEachIndexed { index, node ->
-            nodeStacks[index % rows].addLast(node)
+            if (index < rows * numberOfPossibleNodesForCircle - 1) {
+                nodeStacks[index % rows].addLast(node)
+            }
         }
 
         nodeStacks.forEachIndexed { row, nodeStack ->
             val nodeDistance = nodeDistanceFromOrigin + 2 * (row - 1) * nodeRadiusWithPadding
+            Timber.d("nodeDistance=$nodeDistance")
             nodeStack.forEachIndexed { col, node ->
                 node.state.visible = true
                 val theta =
                     angleBetweenNodes * col - maxAngleFromVertical + 0.5 * angleBetweenNodes * (row - 1) + rotation
+                Timber.d("theta=$theta")
                 node.xPos = nodeDistance * sin(theta) + origin.xPos
                 node.yPos = nodeDistance * cos(theta) + origin.yPos
             }
@@ -73,7 +78,7 @@ open class Graph(notes: List<NoteDto>) : Iterable<Node> {
             PI / asin(nodeRadiusWithPadding / (distanceFromOriginYToHeightRatio * height))
         numberOfNodesToDisplay =
             (numberOfPossibleNodesForCircle * maxAngleFromVertical / PI).toInt()
-        angleBetweenNodes = maxAngleFromVertical * 2 / numberOfNodesToDisplay
+        angleBetweenNodes = 2 * PI / numberOfPossibleNodesForCircle
 
         arrange()
     }
