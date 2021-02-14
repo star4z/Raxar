@@ -26,8 +26,6 @@ class GraphView : View {
     private var lastY = 0f
     private var lastAngle = 0.0
 
-    var rotationGestureScaleFactor = 150.0
-
     constructor(context: Context?) : this(context, null, 0, 0)
     constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0, 0)
     constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : this(
@@ -91,7 +89,7 @@ class GraphView : View {
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         Timber.d("action=${event.action}")
-        val eventHandled = when (event.action) {
+        return when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 graph.rotating = true
                 lastAngle = getAngle(event.x, event.y)
@@ -125,7 +123,6 @@ class GraphView : View {
             }
             else -> super.onTouchEvent(event)
         }
-        return eventHandled
     }
 
     private fun getAngle(x: Float, y: Float): Double {

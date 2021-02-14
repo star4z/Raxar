@@ -63,16 +63,14 @@ open class Graph(notes: List<NoteDto>) : Iterable<Node> {
             }
         }
 
-        val startingOffsetForAllRows = -maxAngleFromVertical
+        val startingOffsetForAllRows = (-numberOfNodesToDisplay + 1) / 2 * angleBetweenNodes
         nodeStacks.forEachIndexed { row, nodeStack ->
             val nodeDistance = nodeDistanceFromOrigin + 2 * (row - 1) * nodeRadiusWithPadding
-            Timber.d("nodeDistance=$nodeDistance")
             val offsetForRow = 0.5 * angleBetweenNodes * (row - 1)
             nodeStack.forEachIndexed { col, node ->
                 node.state.visible = true
                 val theta =
                     angleBetweenNodes * col + startingOffsetForAllRows + offsetForRow + rotation
-                Timber.d("theta=$theta")
                 node.xPos = nodeDistance * sin(theta) + origin.xPos
                 node.yPos = nodeDistance * cos(theta) + origin.yPos
             }
@@ -96,7 +94,7 @@ open class Graph(notes: List<NoteDto>) : Iterable<Node> {
         numberOfNodesToDisplay =
             (numberOfPossibleNodesForCircle * maxAngleFromVertical / PI).toInt()
         angleBetweenNodes = _2PI / numberOfPossibleNodesForCircle
-
+        Timber.d("$numberOfNodesToDisplay")
         arrange()
     }
 
