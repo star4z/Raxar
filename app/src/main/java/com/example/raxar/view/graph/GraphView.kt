@@ -9,7 +9,6 @@ import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import com.example.raxar.data.NoteDto
 import timber.log.Timber
 import kotlin.math.PI
 import kotlin.math.abs
@@ -20,11 +19,15 @@ class GraphView : View {
 
     private val paint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val graph: Graph
+    private var adapter: GraphAdapter
     private val textBounds = Rect()
 
     private var lastX = 0f
     private var lastY = 0f
     private var lastAngle = 0.0
+
+    private val nodeTextSize = 40f
+    private val pNodesToShow = 0.6
 
     constructor(context: Context?) : this(context, null, 0, 0)
     constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0, 0)
@@ -44,44 +47,51 @@ class GraphView : View {
         paint.color = Color.RED
         paint.textAlign = Paint.Align.CENTER
 
-        graph = Graph((1..100).map { NoteDto(title = "Title $it") })
+        graph = Graph()
+        adapter = GraphAdapter((1..100).map { "Title $it" })
     }
 
-    private val nodeTextSize = 40f
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
         canvas?.let {
+
             graph.update(width, height)
 
-            for (node in graph) {
-                if (node.state.visible) {
-                    paint.color = Color.RED
-                    canvas.drawLine(
-                        graph.origin.xPos.toFloat(), graph.origin.yPos.toFloat(),
-                        node.xPos.toFloat(), node.yPos.toFloat(),
-                        paint
-                    )
+            val rangeSize = (graph.middleRowMaxNodes * pNodesToShow).toInt()
+            val numberToShowOnEachSide =
+                ((pNodesToShow - graph.middleRowMaxNodesBetweenEdgesOfScreen / graph.middleRowMaxNodes) /
+                        2 * graph.middleRowMaxNodes).toInt()
+            val start = graph.nearestPos - numberToShowOnEachSide
 
-                    canvas.drawCircle(
-                        node.xPos.toFloat(), node.yPos.toFloat(),
-                        graph.nodeRadius.toFloat(), paint
-                    )
+            for (i in start until start + rangeSize) {
+                val nodeIndex =
+                    ((i % graph.size) + graph.middleRowMaxNodes) % graph.middleRowMaxNodes
+                val node = graph[nodeIndex]
+                paint.color = Color.RED
+                canvas.drawLine(
+                    graph.origin.xPos.toFloat(), graph.origin.yPos.toFloat(),
+                    node.xPos.toFloat(), node.yPos.toFloat(),
+                    paint
+                )
 
-                    node.title?.let { title ->
-                        paint.color = Color.WHITE
-                        paint.textSize = nodeTextSize
-                        paint.textAlign = Paint.Align.CENTER
-                        paint.getTextBounds(title, 0, title.length, textBounds)
-                        canvas.drawText(
-                            title,
-                            node.xPos.toFloat(),
-                            node.yPos.toFloat() - textBounds.exactCenterY(),
-                            paint
-                        )
-                    }
-                }
+                canvas.drawCircle(
+                    node.xPos.toFloat(), node.yPos.toFloat(),
+                    graph.nodeRadius.toFloat(), paint
+                )
+
+                val title = adapter.getData(i)
+                paint.color = Color.WHITE
+                paint.textSize = nodeTextSize
+                paint.textAlign = Paint.Align.CENTER
+                paint.getTextBounds(title, 0, title.length, textBounds)
+                canvas.drawText(
+                    title,
+                    node.xPos.toFloat(),
+                    node.yPos.toFloat() - textBounds.exactCenterY(),
+                    paint
+                )
             }
         }
     }
