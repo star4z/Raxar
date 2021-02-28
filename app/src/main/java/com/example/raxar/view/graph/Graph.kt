@@ -1,16 +1,15 @@
 package com.example.raxar.view.graph
 
-import com.example.raxar.data.NoteDto
 import timber.log.Timber
 import kotlin.math.*
 
-open class Graph(notes: List<NoteDto>) : AbstractList<Node>() {
+open class Graph : AbstractList<Node>() {
     private var angleBetweenNodes: Double = 0.0
     private var maxDisplayedNodesMiddleRow: Int =
         0 // "Displayed" meaning between the two screen bounds
     private var maxNodesMiddleRow: Int = 0
     private var maxAngleFromVertical: Double = 0.0
-    private val nodes = notes.map { note -> Node(note) }
+    private var nodes = listOf<Node>()
 
     var rows = 3
     var widthToOriginXRatio = 1.0 / 2.0
@@ -60,11 +59,7 @@ open class Graph(notes: List<NoteDto>) : AbstractList<Node>() {
     private fun arrange() {
         val nodeStacks = Array<ArrayDeque<Node>>(rows) { ArrayDeque() }
         nodes.forEachIndexed { index, node ->
-            if (index < rows * maxNodesMiddleRow) {
-                nodeStacks[index % rows].addLast(node)
-            } else {
-                node.state.visible = false
-            }
+            nodeStacks[index % rows].addLast(node)
         }
 
         val startingOffsetForAllRows = (-maxDisplayedNodesMiddleRow + 1) / 2 * angleBetweenNodes
@@ -97,6 +92,7 @@ open class Graph(notes: List<NoteDto>) : AbstractList<Node>() {
             (PI / asin(nodeRadiusWithPadding / (distanceFromOriginYToHeightRatio * height))).toInt()
         maxDisplayedNodesMiddleRow =
             (maxNodesMiddleRow * maxAngleFromVertical / PI).toInt()
+        nodes = List(maxNodesMiddleRow * rows) { Node() }
         angleBetweenNodes = 2 * PI / maxNodesMiddleRow
         Timber.d("$maxDisplayedNodesMiddleRow")
         arrange()

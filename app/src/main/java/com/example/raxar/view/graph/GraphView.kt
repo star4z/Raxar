@@ -9,7 +9,6 @@ import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import com.example.raxar.data.NoteDto
 import timber.log.Timber
 import kotlin.math.PI
 import kotlin.math.abs
@@ -44,7 +43,7 @@ class GraphView : View {
         paint.color = Color.RED
         paint.textAlign = Paint.Align.CENTER
 
-        graph = Graph((1..100).map { NoteDto(title = "Title $it") })
+        graph = Graph()
     }
 
     private val nodeTextSize = 40f
