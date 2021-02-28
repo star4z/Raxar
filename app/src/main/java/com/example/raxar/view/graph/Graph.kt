@@ -4,7 +4,7 @@ import com.example.raxar.data.NoteDto
 import timber.log.Timber
 import kotlin.math.*
 
-open class Graph(notes: List<NoteDto>) : Iterable<Node> {
+open class Graph(notes: List<NoteDto>) : AbstractList<Node>() {
     private var angleBetweenNodes: Double = 0.0
     private var numberOfNodesToDisplay: Int = 0
     private var numberOfPossibleNodesForCircle: Int = 0
@@ -52,6 +52,11 @@ open class Graph(notes: List<NoteDto>) : Iterable<Node> {
     init {
         arrange()
     }
+
+    override val size: Int
+        get() = nodes.size
+
+    override operator fun get(index: Int) = nodes[index]
 
     private fun arrange() {
         val nodeStacks = Array<ArrayDeque<Node>>(rows) { ArrayDeque() }
@@ -101,4 +106,5 @@ open class Graph(notes: List<NoteDto>) : Iterable<Node> {
     fun snapToNearest() {
         rotation = (rotation / angleBetweenNodes).roundToInt() * angleBetweenNodes
     }
+
 }
