@@ -55,34 +55,43 @@ class GraphView : View {
             graph.update(width, height)
 
             for (node in graph) {
-                if (node.state.visible) {
-                    paint.color = Color.RED
-                    canvas.drawLine(
-                        graph.origin.xPos.toFloat(), graph.origin.yPos.toFloat(),
-                        node.xPos.toFloat(), node.yPos.toFloat(),
-                        paint
-                    )
-
-                    canvas.drawCircle(
-                        node.xPos.toFloat(), node.yPos.toFloat(),
-                        graph.nodeRadius.toFloat(), paint
-                    )
-
-                    node.title?.let { title ->
-                        paint.color = Color.WHITE
-                        paint.textSize = nodeTextSize
-                        paint.textAlign = Paint.Align.CENTER
-                        paint.getTextBounds(title, 0, title.length, textBounds)
-                        canvas.drawText(
-                            title,
-                            node.xPos.toFloat(),
-                            node.yPos.toFloat() - textBounds.exactCenterY(),
-                            paint
-                        )
-                    }
-                }
+                drawNodeWithLine(canvas, node)
             }
         }
+    }
+
+    private fun drawNodeWithLine(
+        canvas: Canvas,
+        node: Node
+    ) {
+        paint.color = Color.RED
+        canvas.drawLine(
+            graph.origin.xPos.toFloat(), graph.origin.yPos.toFloat(),
+            node.xPos.toFloat(), node.yPos.toFloat(),
+            paint
+        )
+
+        canvas.drawCircle(
+            node.xPos.toFloat(), node.yPos.toFloat(),
+            graph.nodeRadius.toFloat(), paint
+        )
+    }
+
+    private fun drawTitle(
+        title: String,
+        canvas: Canvas,
+        node: Node
+    ) {
+        paint.color = Color.WHITE
+        paint.textSize = nodeTextSize
+        paint.textAlign = Paint.Align.CENTER
+        paint.getTextBounds(title, 0, title.length, textBounds)
+        canvas.drawText(
+            title,
+            node.xPos.toFloat(),
+            node.yPos.toFloat() - textBounds.exactCenterY(),
+            paint
+        )
     }
 
     @SuppressLint("ClickableViewAccessibility")

@@ -67,7 +67,6 @@ open class Graph : AbstractList<Node>() {
             val nodeDistance = nodeDistanceFromOrigin + 2 * (row - 1) * nodeRadiusWithPadding
             val offsetForRow = 0.5 * angleBetweenNodes * (row - 1)
             nodeStack.forEachIndexed { col, node ->
-                node.state.visible = true
                 val theta =
                     angleBetweenNodes * col + startingOffsetForAllRows + offsetForRow + rotation
                 node.xPos = nodeDistance * sin(theta) + origin.xPos
