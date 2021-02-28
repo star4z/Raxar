@@ -6,12 +6,11 @@ import kotlin.math.*
 
 open class Graph(notes: List<NoteDto>) : AbstractList<Node>() {
     private var angleBetweenNodes: Double = 0.0
-    private var numberOfNodesToDisplay: Int = 0
-    private var numberOfPossibleNodesForCircle: Int = 0
+    private var maxDisplayedNodesMiddleRow: Int =
+        0 // "Displayed" meaning between the two screen bounds
+    private var maxNodesMiddleRow: Int = 0
     private var maxAngleFromVertical: Double = 0.0
     private val nodes = notes.map { note -> Node(note) }
-
-    private val _2PI = 2 * PI
 
     var rows = 3
     var widthToOriginXRatio = 1.0 / 2.0
@@ -32,11 +31,11 @@ open class Graph(notes: List<NoteDto>) : AbstractList<Node>() {
     var rotation = 0.0
         set(value) {
             field = when (value) {
-                in 0.0.._2PI -> {
+                in 0.0..2 * PI -> {
                     value
                 }
                 else -> {
-                    ((value % _2PI) + _2PI) % _2PI
+                    ((value % (2 * PI)) + 2 * PI) % (2 * PI)
                 }
             }
             println(field.toString())
@@ -61,14 +60,14 @@ open class Graph(notes: List<NoteDto>) : AbstractList<Node>() {
     private fun arrange() {
         val nodeStacks = Array<ArrayDeque<Node>>(rows) { ArrayDeque() }
         nodes.forEachIndexed { index, node ->
-            if (index < rows * numberOfPossibleNodesForCircle) {
+            if (index < rows * maxNodesMiddleRow) {
                 nodeStacks[index % rows].addLast(node)
             } else {
                 node.state.visible = false
             }
         }
 
-        val startingOffsetForAllRows = (-numberOfNodesToDisplay + 1) / 2 * angleBetweenNodes
+        val startingOffsetForAllRows = (-maxDisplayedNodesMiddleRow + 1) / 2 * angleBetweenNodes
         nodeStacks.forEachIndexed { row, nodeStack ->
             val nodeDistance = nodeDistanceFromOrigin + 2 * (row - 1) * nodeRadiusWithPadding
             val offsetForRow = 0.5 * angleBetweenNodes * (row - 1)
@@ -94,12 +93,12 @@ open class Graph(notes: List<NoteDto>) : AbstractList<Node>() {
         nodeDistanceFromOrigin = distanceFromOriginYToHeightRatio * height
         maxAngleFromVertical =
             asin((width * distanceFromOriginXToWidthRatio - nodeRadiusWithPadding) / (height * distanceFromOriginYToHeightRatio))
-        numberOfPossibleNodesForCircle =
+        maxNodesMiddleRow =
             (PI / asin(nodeRadiusWithPadding / (distanceFromOriginYToHeightRatio * height))).toInt()
-        numberOfNodesToDisplay =
-            (numberOfPossibleNodesForCircle * maxAngleFromVertical / PI).toInt()
-        angleBetweenNodes = _2PI / numberOfPossibleNodesForCircle
-        Timber.d("$numberOfNodesToDisplay")
+        maxDisplayedNodesMiddleRow =
+            (maxNodesMiddleRow * maxAngleFromVertical / PI).toInt()
+        angleBetweenNodes = 2 * PI / maxNodesMiddleRow
+        Timber.d("$maxDisplayedNodesMiddleRow")
         arrange()
     }
 
