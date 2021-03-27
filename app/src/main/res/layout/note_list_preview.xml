@@ -3,15 +3,32 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:padding="16dp">
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/text"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="NOTE Title"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-        android:maxLines="1" />
+        android:layout_margin="4dp"
+        android:background="#CAF7E3"
+        android:checkable="true"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardBackgroundColor="#CAF7E3"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
+        app:cardPreventCornerOverlap="false"
+        app:layout_constraintDimensionRatio="1:1">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="4dp"
+            android:ellipsize="end"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+            tools:text="NOTE Title lorem ipsum dolor amet etc" />
+    </com.google.android.material.card.MaterialCardView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
