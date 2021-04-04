@@ -7,4 +7,6 @@
     <string name="deleted_note">Deleted note.</string>
     <string name="undo">Undo</string>
     <string name="discarded_empty_note">Discarded empty note.</string>
+    <string name="action_search">Search</string>
+    <string name="action_filter">Filter</string>
 </resources>
