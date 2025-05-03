@@ -1,17 +1,22 @@
 package com.example.raxar.ui.notedetail
 
-import androidx.hilt.Assisted
-import androidx.hilt.lifecycle.ViewModelInject
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.example.raxar.data.NoteDto
 import com.example.raxar.data.NoteRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
-class NoteDetailViewModel @ViewModelInject constructor(
-    private val noteRepository: NoteRepository,
-    @Assisted private val savedStateHandle: SavedStateHandle,
+@HiltViewModel
+class NoteDetailViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
+    private val noteRepository: NoteRepository
 ) : ViewModel() {
 
     var needToCreate = false

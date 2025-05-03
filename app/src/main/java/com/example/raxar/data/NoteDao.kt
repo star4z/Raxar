@@ -10,7 +10,6 @@ abstract class NoteDao {
     @Query("SELECT * FROM notes INNER JOIN note_commits ON notes.currentNoteCommitId = note_commits.noteCommitId WHERE notes.parentNoteId IS NULL")
     abstract fun getNotesWithCurrentCommitsForRootNode(): Flow<List<NoteWithCurrentCommitView>>
 
-    @Transaction
     @Query("SELECT * FROM notes WHERE noteId=:noteId LIMIT 1")
     abstract fun getNoteWithCurrentCommitAndChildNotes(noteId: Long): Flow<NoteWithCurrentCommitAndChildNotes?>
 
@@ -26,7 +25,6 @@ abstract class NoteDao {
     @Delete
     abstract fun deleteNote(note: Note)
 
-    @Transaction
     open fun createNote(parentNoteId: Long?): Flow<NoteWithCurrentCommitAndChildNotes?> {
         val note = Note(parentNoteId = parentNoteId)
         val noteId = insertNote(note)
