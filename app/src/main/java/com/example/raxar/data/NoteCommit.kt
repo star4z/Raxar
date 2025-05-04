@@ -24,6 +24,7 @@ import java.time.ZonedDateTime
     ],
     indices = [
         Index("noteId"),
+        Index("parentNoteCommitId")
     ]
 )
 data class NoteCommit(
