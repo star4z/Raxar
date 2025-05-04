@@ -1,5 +1,7 @@
 package com.example.raxar.data
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.map
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
@@ -17,15 +19,26 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
         }
     }
 
-    fun getNote(id: Long): Flow<NoteDto?> {
+    fun getNote(id: Long): LiveData<NoteDto?> {
         Timber.d("getNote(${id})")
         return noteDao.getNoteWithCurrentCommitAndChildNotes(id)
             .map(this::nullableNoteWithCurrentCommitAndChildNotesToNoteDto)
     }
 
-    fun createNote(parentNoteId: Long?): Flow<NoteDto?> {
-        return noteDao.createNote(parentNoteId)
-            .map(this::nullableNoteWithCurrentCommitAndChildNotesToNoteDto)
+    fun createNote(noteDto: NoteDto): NoteDto {
+        val note = noteDtoToNote(noteDto)
+        val commit = noteDtoToNoteCommit(noteDto)
+        try {
+            return nullableNoteWithCurrentCommitAndChildNotesToNoteDto(
+                noteDao.createNote(
+                    note,
+                    commit
+                )
+            )!!
+        } catch (e: Exception) {
+            Timber.e(e)
+            throw e
+        }
     }
 
     fun updateNote(noteDto: NoteDto) {
@@ -52,7 +65,6 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
                 noteId = noteWithCurrentCommitAndChildNotes.note.noteId,
                 parentNoteId = noteWithCurrentCommitAndChildNotes.note.parentNoteId,
                 noteCommitId = noteWithCurrentCommitAndChildNotes.noteCommit.noteCommitId,
-                parentNoteCommitId = noteWithCurrentCommitAndChildNotes.noteCommit.parentNoteCommitId,
                 time = noteWithCurrentCommitAndChildNotes.noteCommit.time,
                 color = noteWithCurrentCommitAndChildNotes.noteCommit.color,
                 title = noteWithCurrentCommitAndChildNotes.noteCommit.title,
@@ -67,7 +79,6 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
             noteId = noteWithCurrentCommitView.noteId,
             parentNoteId = noteWithCurrentCommitView.parentNoteId,
             noteCommitId = noteWithCurrentCommitView.noteCommitId,
-            parentNoteCommitId = noteWithCurrentCommitView.parentNoteCommitId,
             time = noteWithCurrentCommitView.time,
             color = noteWithCurrentCommitView.color,
             title = noteWithCurrentCommitView.title,
@@ -85,9 +96,7 @@ class NoteRepository @Inject constructor(private val noteDao: NoteDao) {
 
     private fun noteDtoToNoteCommit(noteDto: NoteDto): NoteCommit {
         return NoteCommit(
-            noteCommitId = noteDto.noteCommitId,
             noteId = noteDto.noteId,
-            parentNoteCommitId = noteDto.parentNoteCommitId,
             time = noteDto.time,
             color = noteDto.color,
             title = noteDto.title,

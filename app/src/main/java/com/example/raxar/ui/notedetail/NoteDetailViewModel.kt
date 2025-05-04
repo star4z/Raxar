@@ -3,60 +3,48 @@ package com.example.raxar.ui.notedetail
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
+import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.example.raxar.data.NoteDto
 import com.example.raxar.data.NoteRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class NoteDetailViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     private val noteRepository: NoteRepository
 ) : ViewModel() {
 
-    var needToCreate = false
-        private set
-    private val noteIdFromState = savedStateHandle.get<Long>("noteId")!!
-    private val parentNoteIdFromState = savedStateHandle.get<Long>("parentNoteId")!!
+    private val args = NoteDetailFragmentArgs.fromSavedStateHandle(savedStateHandle)
 
-
-    val note: LiveData<NoteDto?> = if (noteIdFromState == 0L) {
-        runBlocking(Dispatchers.IO) {
-            noteRepository.createNote(parentNoteIdFromState.getDefaultForId())
-                .asLiveData(Dispatchers.IO)
+    val note: LiveData<NoteDto> =
+        noteRepository.getNote(args.noteId).map {
+            // If note doesn't exist, create a temp one in memory to be saved later
+            it ?: NoteDto(
+                parentNoteId = args.parentNoteId.getDefaultForId(),
+                source = NoteDto.Source.MEMORY
+            )
         }
-    } else {
-        noteRepository.getNote(noteIdFromState).asLiveData(Dispatchers.IO)
-    }
 
-
-    fun saveNote(noteDetailDto: NoteDetailDto): NoteDto? {
-        val noteDto = getNoteDto(noteDetailDto)
-        noteDto?.let {
-            viewModelScope.launch(Dispatchers.IO) {
+    suspend fun saveNote(noteDetailDto: NoteDetailDto): NoteDto {
+        return withContext(Dispatchers.IO) {
+            val noteDto = getNoteDto(noteDetailDto)
+            if (noteDto.source == NoteDto.Source.MEMORY) {
+                return@withContext noteRepository.createNote(noteDto)
+            } else {
                 noteRepository.updateNote(noteDto)
+                return@withContext noteDto
             }
         }
-        return noteDto
     }
 
-    private fun getNoteDto(noteDetailDto: NoteDetailDto): NoteDto? {
-        note.value?.let { noteDto: NoteDto ->
-            return NoteDto(
-                noteId = noteDto.noteId,
-                parentNoteId = noteDto.parentNoteId,
-                parentNoteCommitId = noteDto.noteCommitId,
-                title = noteDetailDto.title,
-                body = noteDetailDto.body
-            )
-        } ?: run {
-            return null
-        }
+    private fun getNoteDto(noteDetailDto: NoteDetailDto): NoteDto {
+        val noteValue = note.value!!
+        return noteValue.copy(title = noteDetailDto.title, body = noteDetailDto.body)
     }
 
     fun deleteNote(noteDto: NoteDto) {

@@ -14,5 +14,5 @@ data class NoteWithCurrentCommitAndChildNotes(
         parentColumn = "noteId",
         entityColumn = "parentNoteId"
     )
-    val childNotes: List<NoteWithCurrentCommitView>
+    val childNotes: List<NoteWithCurrentCommitView> = listOf()
 )
