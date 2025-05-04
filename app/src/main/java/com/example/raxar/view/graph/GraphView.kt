@@ -48,15 +48,13 @@ class GraphView : View {
 
     private val nodeTextSize = 40f
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        canvas?.let {
-            graph.update(width, height)
+        graph.update(width, height)
 
-            for (node in graph) {
-                drawNodeWithLine(canvas, node)
-            }
+        for (node in graph) {
+            drawNodeWithLine(canvas, node)
         }
     }
 
@@ -105,6 +103,7 @@ class GraphView : View {
                 lastY = event.y
                 true
             }
+
             MotionEvent.ACTION_MOVE -> {
                 val angle = getAngle(event.x, event.y)
                 var angleDifference = angle - lastAngle
@@ -120,6 +119,7 @@ class GraphView : View {
                 invalidate()
                 true
             }
+
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_OUTSIDE -> {
                 graph.rotating = false
                 lastAngle = getAngle(event.x, event.y)
@@ -129,6 +129,7 @@ class GraphView : View {
                 invalidate()
                 true
             }
+
             else -> super.onTouchEvent(event)
         }
     }
