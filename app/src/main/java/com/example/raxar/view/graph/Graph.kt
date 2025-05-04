@@ -17,22 +17,15 @@ open class Graph : AbstractList<Node>() {
     var distanceFromOriginYToHeightRatio = 11.0 / 20.0
     var distanceFromOriginXToWidthRatio = 1.0 / 2.0
     var nodeDistanceFromOrigin = 1.0 // default val is unused
-    var nodeRadius = 100.0
-        set(value) {
-            nodeRadiusWithPadding = value + padding
-            field = value
-        }
-    var padding = 20.0
-        set(value) {
-            nodeRadiusWithPadding = nodeRadius + value
-            field = value
-        }
+    val nodeRadius = 100.0
+    private val padding = 20.0
     var rotation = 0.0
         set(value) {
             field = when (value) {
                 in 0.0..2 * PI -> {
                     value
                 }
+
                 else -> {
                     ((value % (2 * PI)) + 2 * PI) % (2 * PI)
                 }
@@ -41,7 +34,7 @@ open class Graph : AbstractList<Node>() {
         }
     var rotating = false
 
-    private var nodeRadiusWithPadding = nodeRadius + padding
+    private fun nodeRadiusWithPadding() = nodeRadius + padding
     private var width = 1.0 // default val is unused
     private var height = 1.0 // default is unused
 
@@ -64,7 +57,7 @@ open class Graph : AbstractList<Node>() {
 
         val startingOffsetForAllRows = (-maxDisplayedNodesMiddleRow + 1) / 2 * angleBetweenNodes
         nodeStacks.forEachIndexed { row, nodeStack ->
-            val nodeDistance = nodeDistanceFromOrigin + 2 * (row - 1) * nodeRadiusWithPadding
+            val nodeDistance = nodeDistanceFromOrigin + 2 * (row - 1) * nodeRadiusWithPadding()
             val offsetForRow = 0.5 * angleBetweenNodes * (row - 1)
             nodeStack.forEachIndexed { col, node ->
                 val theta =
@@ -86,9 +79,9 @@ open class Graph : AbstractList<Node>() {
 
         nodeDistanceFromOrigin = distanceFromOriginYToHeightRatio * height
         maxAngleFromVertical =
-            asin((width * distanceFromOriginXToWidthRatio - nodeRadiusWithPadding) / (height * distanceFromOriginYToHeightRatio))
+            asin((width * distanceFromOriginXToWidthRatio - nodeRadiusWithPadding()) / (height * distanceFromOriginYToHeightRatio))
         maxNodesMiddleRow =
-            (PI / asin(nodeRadiusWithPadding / (distanceFromOriginYToHeightRatio * height))).toInt()
+            (PI / asin(nodeRadiusWithPadding() / (distanceFromOriginYToHeightRatio * height))).toInt()
         maxDisplayedNodesMiddleRow =
             (maxNodesMiddleRow * maxAngleFromVertical / PI).toInt()
         nodes = List(maxNodesMiddleRow * rows) { Node() }
