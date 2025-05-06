@@ -107,4 +107,7 @@ dependencies {
     androidTestImplementation "com.google.dagger:hilt-android-testing:$hiltVersion"
     kaptAndroidTest "com.google.dagger:hilt-android-compiler:$hiltVersion"
     kaptAndroidTest "androidx.hilt:hilt-compiler:$hiltAndroidXVersion"
+
+    testImplementation 'com.google.truth:truth:1.4.4'
+
 }
