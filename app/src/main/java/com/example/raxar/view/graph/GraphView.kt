@@ -11,7 +11,6 @@ import android.view.MotionEvent
 import android.view.View
 import timber.log.Timber
 import kotlin.math.PI
-import kotlin.math.abs
 import kotlin.math.atan
 import kotlin.math.pow
 
