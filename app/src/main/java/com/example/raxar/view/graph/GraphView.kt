@@ -21,6 +21,7 @@ class GraphView : View {
     private val textBounds = Rect()
     private val nodeTextSize = 40f
     private val snapping = false
+    private var adapter: GraphViewAdapter<String>? = null
 
     constructor(context: Context?) : this(context, null, 0, 0)
     constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0, 0)
@@ -59,9 +60,14 @@ class GraphView : View {
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        val oldNodes = graph.nodes
+        val oldVisibleNodes = graph.nodes.withIndex().filter { getAngle(it.value) > 0 }.toList()
 
         graph.update(width, height)
+
+        val newVisibleNodes = graph.nodes.withIndex().filter { getAngle(it.value) > 0 }.toList()
+
+        val addedNodes = newVisibleNodes.filter { !oldVisibleNodes.contains(it) }
+        val removedNodes = oldVisibleNodes.filter { !newVisibleNodes.contains(it) }
 
         for (node in graph.nodes.withIndex()) {
             val angle = getAngle(node.value.x.toFloat(), node.value.y.toFloat())
@@ -139,6 +145,12 @@ class GraphView : View {
 
             else -> super.onTouchEvent(event)
         }
+    }
+
+    private fun getAngle(node: Node): Double {
+        val height = node.y - graph.origin.y
+        val width = node.x - graph.origin.x
+        return atan2(height, width)
     }
 
     private fun getAngle(x: Float, y: Float): Double {
