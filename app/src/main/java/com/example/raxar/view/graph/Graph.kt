@@ -12,12 +12,19 @@ open class Graph : AbstractList<Node>() {
     private var nodes = listOf<Node>()
 
     var rows = 3
+    // Distance of origin to the left edge of the screen as a proportion of the view width
     var widthToOriginXRatio = 1.0 / 2.0
+    // Distance of origin to the top edge of the screen as a proportion of the view height
     var heightToOriginYRatio = 1.0 / 5.0
+    // Distance of nodes to the origin as a proportion of the view height
     var distanceFromOriginYToHeightRatio = 11.0 / 20.0
+    // Distance of node to the origin as a proportion of the view width
     var distanceFromOriginXToWidthRatio = 1.0 / 2.0
+    // Distance from node to origin
     var orbitalRadius = 1.0 // default val is unused
+    // Size of the node
     val geometricRadius = 100.0
+    // Padding for each node. Enforced for nodes in the same row.
     private val padding = 20.0
     var rotation = 0.0
         set(value) {
