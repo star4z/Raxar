@@ -9,7 +9,7 @@ open class Graph : AbstractList<Node>() {
         0 // "Displayed" meaning between the two screen bounds
     private var maxNodesMiddleRow: Int = 0
     private var maxAngleFromVertical: Double = 0.0
-    private var nodes = listOf<Node>()
+    var nodes = listOf<Node>()
 
     var rows = 3
     // Distance of origin to the left edge of the screen as a proportion of the view width

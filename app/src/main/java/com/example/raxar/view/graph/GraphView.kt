@@ -20,6 +20,7 @@ class GraphView : View {
     private val graph: Graph
     private val textBounds = Rect()
     private val nodeTextSize = 40f
+    private val snapping = false
 
     constructor(context: Context?) : this(context, null, 0, 0)
     constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0, 0)
@@ -58,9 +59,11 @@ class GraphView : View {
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
+        val oldNodes = graph.nodes
+
         graph.update(width, height)
 
-        for (node in graph.withIndex()) {
+        for (node in graph.nodes.withIndex()) {
             val angle = getAngle(node.value.x.toFloat(), node.value.y.toFloat())
             if (angle > 0) {
                 drawNodeWithLine(canvas, node.value, node.index)
@@ -127,7 +130,9 @@ class GraphView : View {
             }
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_OUTSIDE -> {
-                graph.snapToNearest()
+                if (snapping) {
+                    graph.snapToNearest()
+                }
                 invalidate()
                 true
             }
