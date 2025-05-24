@@ -53,14 +53,15 @@ class GraphView : View {
 
         graph.update(width, height)
 
-        for (node in graph) {
-            drawNodeWithLine(canvas, node)
+        for (iNode in graph.withIndex()) {
+            drawNodeWithLine(canvas, iNode.value, iNode.index)
         }
     }
 
     private fun drawNodeWithLine(
         canvas: Canvas,
-        node: Node
+        node: Node,
+        i: Int
     ) {
         paint.color = Color.RED
         canvas.drawLine(
@@ -73,6 +74,8 @@ class GraphView : View {
             node.xPos.toFloat(), node.yPos.toFloat(),
             graph.nodeRadius.toFloat(), paint
         )
+
+        drawTitle(i.toString(), canvas, node)
     }
 
     private fun drawTitle(
@@ -106,11 +109,8 @@ class GraphView : View {
 
             MotionEvent.ACTION_MOVE -> {
                 val angle = getAngle(event.x, event.y)
-                var angleDifference = angle - lastAngle
+                val angleDifference = (angle - lastAngle) % (PI / 2)
                 if (graph.rotating) {
-                    if (abs(angleDifference) > PI / 2) {
-                        angleDifference -= PI
-                    }
                     graph.rotation += angleDifference
                 }
                 lastAngle = angle
