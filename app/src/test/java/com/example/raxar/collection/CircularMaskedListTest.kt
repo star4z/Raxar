@@ -21,6 +21,12 @@ class CircularMaskedListTest {
     }
 
     @Test
+    fun returnsMaskedValues_maxSize0() {
+        val list = CircularMaskedList(listOf(1, 2, 3, 4, 5), 0)
+        assertThat(list.getMaskedValues()).isEmpty()
+    }
+
+    @Test
     fun returnsMaskedValues_withMaskBiggerThanSize_returnsAllValues() {
         val list = CircularMaskedList(listOf(1, 2, 3, 4, 5), 10)
         assertThat(list.getMaskedValues()).containsExactly(1, 2, 3, 4, 5).inOrder()
@@ -77,31 +83,23 @@ class CircularMaskedListTest {
         val list = CircularMaskedList(listOf(1, 2, 3, 4, 5), 3, 1)
         val newValues = list.shiftRightMaskBound(2)
         assertThat(newValues).containsExactly(5, 1).inOrder()
-        assertThat(list.getMaskedValues()).containsExactly(5, 1, 2, 3, 4).inOrder()
+        assertThat(list.getMaskedValues()).containsExactly(2, 3, 4, 5, 1).inOrder()
     }
 
     @Test
     fun shiftRightMaskBound_left() {
         val list = CircularMaskedList(listOf(1, 2, 3, 4, 5), 3, 2)
         val newValues = list.shiftRightMaskBound(-2)
-        assertThat(newValues).containsExactly(4, 5).inOrder()
+        assertThat(newValues).containsExactly(5, 4).inOrder()
         assertThat(list.getMaskedValues()).containsExactly(3).inOrder()
     }
 
     @Test
     fun shiftRightMaskBound_leftPastStartIndex_returnsWrapAroundValues() {
         val list = CircularMaskedList(listOf(1, 2, 3, 4, 5), 3, 2)
-        val newValues = list.shiftRightMaskBound(-3)
-        assertThat(newValues).containsExactly(1, 2).inOrder()
-        assertThat(list.getMaskedValues()).containsExactly(1, 2, 3, 4, 5).inOrder()
-    }
-
-    @Test
-    fun shiftRightMaskBound_left_wrapsAround() {
-        val list = CircularMaskedList(listOf(1, 2, 3, 4, 5), 3, 2)
-        val newValues = list.shiftRightMaskBound(4)
-        assertThat(newValues).containsExactly(1, 2, 3, 4).inOrder()
-        assertThat(list.getMaskedValues()).containsExactly(1, 2, 3, 4, 5).inOrder()
+        val newValues = list.shiftRightMaskBound(-4)
+        assertThat(newValues).containsExactly(5, 4, 3, 2).inOrder()
+        assertThat(list.getMaskedValues()).containsExactly(2).inOrder()
     }
 
     @Test
@@ -110,5 +108,53 @@ class CircularMaskedListTest {
         val newValues = list.shiftLeftMaskBound(-1)
         assertThat(newValues).containsExactly(2).inOrder()
         assertThat(list.getMaskedValues()).containsExactly(2, 3, 4, 5).inOrder()
+    }
+
+    @Test
+    fun shiftLeftMaskBound_left_longerThanList_returnsWholeList() {
+        val list = CircularMaskedList(listOf(1, 2, 3, 4, 5), 3, 2)
+        val newValues = list.shiftLeftMaskBound(-4)
+        assertThat(newValues).containsExactly(2, 1).inOrder()
+        assertThat(list.getMaskedValues()).containsExactly(4, 5, 1, 2, 3).inOrder()
+    }
+
+    @Test
+    fun shiftLeftMaskBound_left_wrapsAround() {
+        val list = CircularMaskedList(listOf(1, 2, 3, 4, 5), 3, 1) // [2, 3, 4]
+        val newValues = list.shiftLeftMaskBound(-2)
+        assertThat(newValues).containsExactly(1, 5).inOrder()
+        assertThat(list.getMaskedValues()).containsExactly(5, 1, 2, 3, 4).inOrder()
+    }
+
+    @Test
+    fun shiftLeftMaskBound_right() {
+        val list = CircularMaskedList(listOf(1, 2, 3, 4, 5), 3, 2)
+        val newValues = list.shiftLeftMaskBound(2)
+        assertThat(newValues).containsExactly(3, 4).inOrder()
+        assertThat(list.getMaskedValues()).containsExactly(5).inOrder()
+    }
+
+    @Test
+    fun shiftLeftMaskBound_rightPastEndIndex_returnsWrapAroundValues() {
+        val list = CircularMaskedList(listOf(1, 2, 3, 4, 5), 3, 2)
+        val newValues = list.shiftLeftMaskBound(4)
+        assertThat(newValues).containsExactly(3, 4, 5, 1).inOrder()
+        assertThat(list.getMaskedValues()).containsExactly(1).inOrder()
+    }
+
+    @Test
+    fun shiftLeftMaskBound_0_returnsEmptyList() {
+        val list = CircularMaskedList(listOf(1, 2, 3, 4, 5), 3, 2)
+        val newValues = list.shiftLeftMaskBound(0)
+        assertThat(newValues).isEmpty()
+        assertThat(list.getMaskedValues()).containsExactly(3, 4, 5).inOrder()
+    }
+
+    @Test
+    fun shiftRightMaskBound_0_returnsEmptyList() {
+        val list = CircularMaskedList(listOf(1, 2, 3, 4, 5), 3, 2)
+        val newValues = list.shiftRightMaskBound(0)
+        assertThat(newValues).isEmpty()
+        assertThat(list.getMaskedValues()).containsExactly(3, 4, 5).inOrder()
     }
 }
