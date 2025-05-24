@@ -10,8 +10,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import timber.log.Timber
-import kotlin.math.PI
-import kotlin.math.atan
+import kotlin.math.atan2
 import kotlin.math.pow
 
 class GraphView : View {
@@ -48,8 +47,11 @@ class GraphView : View {
 
         graph.update(width, height)
 
-        for (iNode in graph.withIndex()) {
-            drawNodeWithLine(canvas, iNode.value, iNode.index)
+        for (node in graph.withIndex()) {
+            val angle = getAngle(node.value.xPos.toFloat(), node.value.yPos.toFloat())
+            if (angle > 0) {
+                drawNodeWithLine(canvas, node.value, node.index)
+            }
         }
     }
 
@@ -105,9 +107,8 @@ class GraphView : View {
 
                 val oldAngle = getAngle(event.getHistoricalX(0), event.getHistoricalY(0))
                 val newAngle = getAngle(event.x, event.y)
-                val angleDifference = (newAngle - oldAngle) % (PI / 2)
-                Timber.d("oldAngle=$oldAngle, newAngle=$newAngle, angleDifference=$angleDifference")
-                graph.rotation += angleDifference
+                val angleDifference = (newAngle - oldAngle)
+                graph.rotation -= angleDifference
                 invalidate()
                 true
             }
@@ -125,7 +126,7 @@ class GraphView : View {
     private fun getAngle(x: Float, y: Float): Double {
         val height = y - graph.origin.yPos
         val width = x - graph.origin.xPos
-        return atan(width / height)
+        return atan2(height, width)
     }
 
     private fun inCircle(
