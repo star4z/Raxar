@@ -9,6 +9,7 @@ import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import com.example.raxar.collection.CircularMaskedList
 import timber.log.Timber
 import kotlin.math.atan2
 import kotlin.math.pow
@@ -18,6 +19,7 @@ class GraphView : View {
     private val paint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val graph: Graph
     private val textBounds = Rect()
+    private val nodeTextSize = 40f
 
     constructor(context: Context?) : this(context, null, 0, 0)
     constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0, 0)
@@ -40,7 +42,18 @@ class GraphView : View {
         graph = Graph()
     }
 
-    private val nodeTextSize = 40f
+    inner class GraphViewAdapter<T>(values: List<T>) {
+        val values = CircularMaskedList(values, graph.size)
+
+        public fun onValuesChanged(leftShift: Int, rightShift: Int) {
+            val addedOrRemovedLeftBoundValues = values.shiftLeftMaskBound(leftShift)
+            val addedOrRemovedRightBoundValues = values.shiftRightMaskBound(rightShift)
+        }
+
+        public fun bindValue(startIndex: Int, size: Int): List<String> {
+            return values.getMaskedValues().stream().map { it.toString() }.toList()
+        }
+    }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
@@ -48,7 +61,7 @@ class GraphView : View {
         graph.update(width, height)
 
         for (node in graph.withIndex()) {
-            val angle = getAngle(node.value.xPos.toFloat(), node.value.yPos.toFloat())
+            val angle = getAngle(node.value.x.toFloat(), node.value.y.toFloat())
             if (angle > 0) {
                 drawNodeWithLine(canvas, node.value, node.index)
             }
@@ -62,13 +75,13 @@ class GraphView : View {
     ) {
         paint.color = Color.RED
         canvas.drawLine(
-            graph.origin.xPos.toFloat(), graph.origin.yPos.toFloat(),
-            node.xPos.toFloat(), node.yPos.toFloat(),
+            graph.origin.x.toFloat(), graph.origin.y.toFloat(),
+            node.x.toFloat(), node.y.toFloat(),
             paint
         )
 
         canvas.drawCircle(
-            node.xPos.toFloat(), node.yPos.toFloat(),
+            node.x.toFloat(), node.y.toFloat(),
             graph.geometricRadius.toFloat(), paint
         )
 
@@ -86,8 +99,8 @@ class GraphView : View {
         paint.getTextBounds(title, 0, title.length, textBounds)
         canvas.drawText(
             title,
-            node.xPos.toFloat(),
-            node.yPos.toFloat() - textBounds.exactCenterY(),
+            node.x.toFloat(),
+            node.y.toFloat() - textBounds.exactCenterY(),
             paint
         )
     }
@@ -124,8 +137,8 @@ class GraphView : View {
     }
 
     private fun getAngle(x: Float, y: Float): Double {
-        val height = y - graph.origin.yPos
-        val width = x - graph.origin.xPos
+        val height = y - graph.origin.y
+        val width = x - graph.origin.x
         return atan2(height, width)
     }
 

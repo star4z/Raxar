@@ -31,8 +31,9 @@ open class Graph : AbstractList<Node>() {
                     ((value % (2 * PI)) + 2 * PI) % (2 * PI)
                 }
             }
-            println(field.toString())
+            Timber.d("rotation=$field")
         }
+
     private fun geometricRadiusWithPadding() = geometricRadius + padding
     private var width = 1.0 // default val is unused
     private var height = 1.0 // default is unused
@@ -61,26 +62,30 @@ open class Graph : AbstractList<Node>() {
         // Offset the angle of all rows so that they're aligned near the left edge of the screen
         val startingOffsetForAllRows = (-maxDisplayedNodesMiddleRow + 1) / 2 * angleBetweenNodes
 
-        nodeStacks.forEachIndexed { row, nodeStack ->
-            // Set distance from node to the origin.
-            // Each row is 1 node diameter further from the origin than the previous node.
-            val nodeDistance = orbitalRadius + 2 * (row - 1) * geometricRadiusWithPadding()
+        val newNodes = buildList {
 
-            // Sets an additional row-specific angle offset so the Nodes in each row don't touch.
-            // This assumes that all rows have the same number of Nodes.
-            val offsetForRow = 0.5 * angleBetweenNodes * (row - 1)
+            nodeStacks.forEachIndexed { row, nodeStack ->
+                // Set distance from node to the origin.
+                // Each row is 1 node diameter further from the origin than the previous node.
+                val nodeDistance = orbitalRadius + 2 * (row - 1) * geometricRadiusWithPadding()
 
-            nodeStack.forEachIndexed { col, node ->
-                // Sets the angle for the node
-                val theta =
-                    angleBetweenNodes * col + startingOffsetForAllRows + offsetForRow + rotation
+                // Sets an additional row-specific angle offset so the Nodes in each row don't touch.
+                // This assumes that all rows have the same number of Nodes.
+                val offsetForRow = 0.5 * angleBetweenNodes * (row - 1)
 
-                // Sets the position of the node based on the angle, distance from the origin, and
-                // position of the origin.
-                node.xPos = nodeDistance * sin(theta) + origin.xPos
-                node.yPos = nodeDistance * cos(theta) + origin.yPos
+                nodeStack.forEachIndexed { col, node ->
+                    // Sets the angle for the node
+                    val theta =
+                        angleBetweenNodes * col + startingOffsetForAllRows + offsetForRow + rotation
+
+                    // Sets the position of the node based on the angle, distance from the origin, and
+                    // position of the origin.
+                    add(Node(x = nodeDistance * sin(theta) + origin.x, y = nodeDistance * cos(theta) + origin.y))
+                }
             }
         }
+
+        nodes = newNodes;
     }
 
     override fun iterator(): Iterator<Node> {
