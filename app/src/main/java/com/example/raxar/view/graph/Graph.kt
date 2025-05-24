@@ -32,8 +32,6 @@ open class Graph : AbstractList<Node>() {
             }
             println(field.toString())
         }
-    var rotating = false
-
     private fun nodeRadiusWithPadding() = nodeRadius + padding
     private var width = 1.0 // default val is unused
     private var height = 1.0 // default is unused

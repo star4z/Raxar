@@ -20,10 +20,6 @@ class GraphView : View {
     private val graph: Graph
     private val textBounds = Rect()
 
-    private var lastX = 0f
-    private var lastY = 0f
-    private var lastAngle = 0.0
-
     constructor(context: Context?) : this(context, null, 0, 0)
     constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0, 0)
     constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : this(
@@ -99,31 +95,23 @@ class GraphView : View {
         Timber.d("action=${event.action}")
         return when (event.action) {
             MotionEvent.ACTION_DOWN -> {
-                graph.rotating = true
-                lastAngle = getAngle(event.x, event.y)
-                lastX = event.x
-                lastY = event.y
                 true
             }
 
             MotionEvent.ACTION_MOVE -> {
-                val angle = getAngle(event.x, event.y)
-                val angleDifference = (angle - lastAngle) % (PI / 2)
-                if (graph.rotating) {
-                    graph.rotation += angleDifference
+                if (event.historySize < 1) {
+                    return true
                 }
-                lastAngle = angle
-                lastX = event.x
-                lastY = event.y
+
+                val oldAngle = getAngle(event.getHistoricalX(0), event.getHistoricalY(0))
+                val newAngle = getAngle(event.x, event.y)
+                val angleDifference = (newAngle - oldAngle) % (PI / 2)
+                graph.rotation += angleDifference
                 invalidate()
                 true
             }
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_OUTSIDE -> {
-                graph.rotating = false
-                lastAngle = getAngle(event.x, event.y)
-                lastX = event.x
-                lastY = event.y
                 graph.snapToNearest()
                 invalidate()
                 true
