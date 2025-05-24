@@ -67,7 +67,7 @@ class GraphView : View {
 
         canvas.drawCircle(
             node.xPos.toFloat(), node.yPos.toFloat(),
-            graph.nodeRadius.toFloat(), paint
+            graph.geometricRadius.toFloat(), paint
         )
 
         drawTitle(i.toString(), canvas, node)
@@ -106,6 +106,7 @@ class GraphView : View {
                 val oldAngle = getAngle(event.getHistoricalX(0), event.getHistoricalY(0))
                 val newAngle = getAngle(event.x, event.y)
                 val angleDifference = (newAngle - oldAngle) % (PI / 2)
+                Timber.d("oldAngle=$oldAngle, newAngle=$newAngle, angleDifference=$angleDifference")
                 graph.rotation += angleDifference
                 invalidate()
                 true
