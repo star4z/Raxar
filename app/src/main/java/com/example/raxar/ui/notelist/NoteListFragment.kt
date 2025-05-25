@@ -7,18 +7,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.ItemTouchHelper
-import com.example.raxar.R
-import com.example.raxar.data.NoteDto
 import com.example.raxar.databinding.NoteListFragmentBinding
-import com.example.raxar.ui.commons.NoteListPreviewAdapter
 import com.example.raxar.ui.commons.NoteListPreviewGraphAdapter
-import com.example.raxar.util.SwipeCallback
-import com.example.raxar.view.graph.GraphView.GraphViewAdapter
-import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
-
 
 @AndroidEntryPoint
 class NoteListFragment : Fragment() {
@@ -46,40 +37,19 @@ class NoteListFragment : Fragment() {
         val graphAdapter = NoteListPreviewGraphAdapter()
         binding.graph.adapter = graphAdapter
 
-        val adapter = NoteListPreviewAdapter {
-            findNavController().navigate(
-                NoteListFragmentDirections.actionNoteListFragmentToNoteDetailFragment(it.noteId)
-            )
-        }
-        binding.recyclerview.adapter = adapter
-
-        val swipeCallback = SwipeCallback(requireContext()) { viewHolder, _ ->
-            val (position, noteDto) = adapter.removeItem(viewHolder as NoteListPreviewAdapter.ViewHolder)
-            val snackbar = Snackbar.make(binding.root, R.string.deleted_note, Snackbar.LENGTH_LONG)
-            snackbar.setAction(R.string.undo) {
-                Timber.d("Undo pressed.")
-                adapter.addItem(position, noteDto)
-            }.addCallback(object : Snackbar.Callback() {
-                override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                    if (event != DISMISS_EVENT_ACTION) {
-                        Timber.d("Snackbar was not dismissed by touch event.")
-                        viewModel.deleteNote(noteDto)
-                    }
-                }
-            }).show()
-        }
-
-        val itemTouchHelper = ItemTouchHelper(swipeCallback)
-        itemTouchHelper.attachToRecyclerView(binding.recyclerview)
-
         viewModel.notes.removeObservers(viewLifecycleOwner)
         viewModel.notes.observe(viewLifecycleOwner) { notes ->
             graphAdapter.submitList(notes)
-            adapter.submitList(notes.sortedByDescending { it.time })
         }
 
         binding.addNote.setOnClickListener {
             val action = NoteListFragmentDirections.actionNoteListFragmentToNoteDetailFragment()
+            findNavController().navigate(action)
+        }
+
+        binding.viewNotesList.setOnClickListener {
+            val action =
+                NoteListFragmentDirections.actionNoteListFragmentToNoteListRecyclerViewFragment()
             findNavController().navigate(action)
         }
     }

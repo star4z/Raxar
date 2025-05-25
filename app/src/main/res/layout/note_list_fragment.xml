@@ -5,66 +5,65 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".ui.notelist.NoteListFragment">
+    tools:context=".ui.notelist.NoteListFragment"
+    >
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar"
+  <androidx.constraintlayout.widget.ConstraintLayout
+      android:id="@+id/main"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:paddingTop="@dimen/toolbar_top_margin"
+      tools:context=".ui.notelist.NoteListFragment"
+      >
+
+    <com.example.raxar.view.graph.GraphView
+        android:id="@+id/graph"
         android:layout_width="match_parent"
+        android:layout_height="500dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/add_note"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar">
+        android:layout_margin="16dp"
+        android:text="@string/action_add_note"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/graph"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        />
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:title="@string/app_name" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/view_notes_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="@string/action_view_as_list"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/add_note"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        />
+  </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </com.google.android.material.appbar.AppBarLayout>
+  <com.google.android.material.appbar.AppBarLayout
+      android:id="@+id/appbar"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
+      >
 
-    <ScrollView
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true"
-        android:paddingTop="@dimen/toolbar_top_margin">
+        android:layout_height="?attr/actionBarSize"
+        app:title="@string/app_name"
+        />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/main"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:context=".ui.notelist.NoteListFragment">
-
-            <com.example.raxar.view.graph.GraphView
-                android:id="@+id/graph"
-                android:layout_width="match_parent"
-                android:layout_height="500dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerview"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                android:orientation="vertical"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/graph"
-                tools:itemCount="7"
-                tools:listitem="@layout/note_list_preview" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/add_note"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:text="@string/action_add_note"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/recyclerview" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
+  </com.google.android.material.appbar.AppBarLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

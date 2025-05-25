@@ -8,4 +8,5 @@
     <string name="undo">Undo</string>
     <string name="discarded_empty_note">Discarded empty note.</string>
     <string name="cannot_add_child_to_empty_note">Cannot add child to empty note.</string>
+    <string name="action_view_as_list">View as list</string>
 </resources>

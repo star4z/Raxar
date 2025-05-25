@@ -1,7 +1,11 @@
 package com.example.raxar.view.graph
 
 import timber.log.Timber
-import kotlin.math.*
+import kotlin.math.PI
+import kotlin.math.asin
+import kotlin.math.cos
+import kotlin.math.roundToInt
+import kotlin.math.sin
 
 open class Graph : AbstractList<Node>() {
     private var angleBetweenNodes: Double = 0.0
@@ -11,7 +15,7 @@ open class Graph : AbstractList<Node>() {
     private var maxAngleFromVertical: Double = 0.0
     var nodes = listOf<Node>()
 
-    var rows = 3
+    var rows = 1
 
     // Distance of origin to the left edge of the screen as a proportion of the view width
     var widthToOriginXRatio = 1.0 / 2.0
@@ -32,7 +36,7 @@ open class Graph : AbstractList<Node>() {
     val geometricRadius = 100.0
 
     // Padding for each node. Enforced for nodes in the same row.
-    private val padding = 20.0
+    private val padding = 100.0
     var rotation = 0.0
         set(value) {
             field = when (value) {
@@ -68,7 +72,7 @@ open class Graph : AbstractList<Node>() {
      */
     private fun arrange() {
         // Offset the angle of all rows so that they're aligned near the left edge of the screen
-        val startingOffsetForAllRows = (-maxDisplayedNodesMiddleRow + 1) / 2 * angleBetweenNodes
+        val startingOffsetForAllRows = getStartingOffsetForAllRows()
 
         // Pre-calculate row-specific values
 
@@ -109,6 +113,8 @@ open class Graph : AbstractList<Node>() {
 
         nodes = newNodes
     }
+
+    fun getStartingOffsetForAllRows() = (-maxDisplayedNodesMiddleRow + 1) / 2 * angleBetweenNodes
 
     override fun iterator(): Iterator<Node> {
         return nodes.iterator()

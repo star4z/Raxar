@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_noteListFragment_to_noteDetailFragment"
             app:destination="@id/noteDetailFragment" />
+        <action
+            android:id="@+id/action_noteListFragment_to_noteListRecyclerViewFragment"
+            app:destination="@id/noteListRecyclerViewFragment" />
     </fragment>
     <fragment
         android:id="@+id/noteDetailFragment"
@@ -30,5 +33,14 @@
             android:name="parentNoteId"
             android:defaultValue="0L"
             app:argType="long" />
+    </fragment>
+    <fragment
+        android:id="@+id/noteListRecyclerViewFragment"
+        android:name="com.example.raxar.ui.notelist.NoteListRecyclerViewFragment"
+        android:label="note_list_fragment_2"
+        tools:layout="@layout/note_list_fragment_2">
+        <action
+            android:id="@+id/action_noteListRecyclerViewFragment_to_noteDetailFragment"
+            app:destination="@id/noteDetailFragment" />
     </fragment>
 </navigation>
