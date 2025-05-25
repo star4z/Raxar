@@ -37,8 +37,8 @@ import kotlin.math.abs
  *      of [0, values.size). Negative values will be wrapped around, for example
  */
 class CircularMaskedList<T>(
-    private val values: List<T>,
-    private var maskSize: Int,
+    private val values: List<T> = listOf(),
+    var maskSize: Int = values.size,
     private var startIndex: Int = 0
 ) {
 
@@ -49,7 +49,7 @@ class CircularMaskedList<T>(
 
     private fun flipMaskIfNegative() {
         if (maskSize < 0) {
-            val tempMaskSize = maskSize % values.size
+            val tempMaskSize = if (values.isEmpty()) 0 else maskSize % values.size
             startIndex = fitIndexInValuesSize(startIndex + tempMaskSize)
             maskSize = -maskSize
         }
@@ -85,12 +85,6 @@ class CircularMaskedList<T>(
         if (indexCount == 0) {
             return listOf()
         }
-        Timber.d(
-            "startIndex = %s, maskSize = %s, oldValues = %s",
-            startIndex,
-            maskSize,
-            getMaskedValues()
-        )
         val range = 1..abs(indexCount)
         val changeBy = if (indexCount > 0) 1 else -1
         return buildList {
@@ -99,12 +93,6 @@ class CircularMaskedList<T>(
                 maskSize += changeBy
                 flipMaskIfNegative()
                 val newValues = getMaskedValues()
-                Timber.d(
-                    "startIndex = %s, maskSize = %s, newValues = %s",
-                    startIndex,
-                    maskSize,
-                    newValues
-                )
                 addAll(addedOrRemovedValues(oldValues, newValues))
             }
         }
@@ -121,12 +109,6 @@ class CircularMaskedList<T>(
         if (indexCount == 0) {
             return listOf()
         }
-        Timber.d(
-            "startIndex = %s, maskSize = %s, oldValues = %s",
-            startIndex,
-            maskSize,
-            getMaskedValues()
-        )
         val range = 1..abs(indexCount)
         val changeBy = if (indexCount > 0) 1 else -1
         return buildList {
@@ -137,18 +119,15 @@ class CircularMaskedList<T>(
                 maskSize -= changeBy
                 flipMaskIfNegative()
                 val newValues = getMaskedValues()
-                Timber.d(
-                    "startIndex = %s, maskSize = %s, newValues = %s",
-                    startIndex,
-                    maskSize,
-                    newValues
-                )
                 addAll(addedOrRemovedValues(oldValues, newValues))
             }
         }
     }
 
     private fun fitIndexInValuesSize(index: Int): Int {
+        if (values.isEmpty()) {
+            return 0
+        }
         return if (index < 0) values.size + (index % values.size) else (index % values.size)
     }
 

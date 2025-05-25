@@ -157,4 +157,10 @@ class CircularMaskedListTest {
         assertThat(newValues).isEmpty()
         assertThat(list.getMaskedValues()).containsExactly(3, 4, 5).inOrder()
     }
+
+    @Test
+    fun init_emptyList() {
+        val list = CircularMaskedList<Int>()
+        assertThat(list.getMaskedValues()).isEmpty()
+    }
 }

@@ -21,7 +21,11 @@ class GraphView : View {
     private val textBounds = Rect()
     private val nodeTextSize = 40f
     private val snapping = false
-    private var adapter: GraphViewAdapter<String>? = null
+    var adapter: GraphViewAdapter<*>? = null
+        set(value) {
+            value?.setMaskSize(graph.size)
+            field = value
+        }
 
     constructor(context: Context?) : this(context, null, 0, 0)
     constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0, 0)
@@ -44,43 +48,67 @@ class GraphView : View {
         graph = Graph()
     }
 
-    inner class GraphViewAdapter<T>(values: List<T>) {
-        val values = CircularMaskedList(values, graph.size)
+    abstract class GraphViewAdapter<T> {
+        private var values = CircularMaskedList<T>()
 
-        public fun onValuesChanged(leftShift: Int, rightShift: Int) {
-            val addedOrRemovedLeftBoundValues = values.shiftLeftMaskBound(leftShift)
-            val addedOrRemovedRightBoundValues = values.shiftRightMaskBound(rightShift)
+        fun setMaskSize(size: Int) {
+            values.maskSize = size
         }
 
-        public fun bindValue(startIndex: Int, size: Int): List<String> {
-            return values.getMaskedValues().stream().map { it.toString() }.toList()
+        fun submitList(list: List<T>) {
+            values = CircularMaskedList(list)
         }
+
+        fun onValuesChanged(leftShift: Int, rightShift: Int) {
+            values.shiftLeftMaskBound(leftShift)
+            values.shiftRightMaskBound(rightShift)
+        }
+
+        fun getItem(index: Int): String {
+            return if (index in values.getMaskedValues().indices) {
+                bindValue(values.getMaskedValues()[index])
+            } else {
+                index.toString()
+            }
+        }
+
+        abstract fun bindValue(value: T): String
     }
+
+    private data class AngledNode(val index: Int, val angle: Double, val node: Node)
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        val oldVisibleNodes = graph.nodes.withIndex().filter { getAngle(it.value) > 0 }.toList()
+
+        val oldVisibleNodes =
+            graph.nodes.withIndex().map { AngledNode(it.index, getAngle(it.value), it.value) }
+                .filter { it.angle > 0 }.sortedBy { it.angle }.toList()
 
         graph.update(width, height)
 
-        val newVisibleNodes = graph.nodes.withIndex().filter { getAngle(it.value) > 0 }.toList()
+        val newVisibleNodes =
+            graph.nodes.withIndex().map { AngledNode(it.index, getAngle(it.value), it.value) }
+                .filter { it.angle > 0 }.sortedBy { it.angle }.toList()
 
-        val addedNodes = newVisibleNodes.filter { !oldVisibleNodes.contains(it) }
-        val removedNodes = oldVisibleNodes.filter { !newVisibleNodes.contains(it) }
+        val oldFirstIndex = if (oldVisibleNodes.any()) oldVisibleNodes.first().index else 0
+        val oldLastIndex = if (oldVisibleNodes.any()) oldVisibleNodes.last().index else 0
+        val leftShift = newVisibleNodes.first().index - oldFirstIndex
+        val rightShift = newVisibleNodes.last().index - oldLastIndex
 
-        for (node in graph.nodes.withIndex()) {
-            val angle = getAngle(node.value.x.toFloat(), node.value.y.toFloat())
-            if (angle > 0) {
-                drawNodeWithLine(canvas, node.value, node.index)
+        adapter?.onValuesChanged(leftShift, rightShift)
+
+        for (node in newVisibleNodes) {
+            drawNodeWithLine(canvas, node.node)
+            adapter?.let {
+                drawTitle(it.getItem(node.index), canvas, node.node)
             }
         }
     }
 
     private fun drawNodeWithLine(
         canvas: Canvas,
-        node: Node,
-        i: Int
+        node: Node
     ) {
         paint.color = Color.RED
         canvas.drawLine(
@@ -93,8 +121,6 @@ class GraphView : View {
             node.x.toFloat(), node.y.toFloat(),
             graph.geometricRadius.toFloat(), paint
         )
-
-        drawTitle(i.toString(), canvas, node)
     }
 
     private fun drawTitle(

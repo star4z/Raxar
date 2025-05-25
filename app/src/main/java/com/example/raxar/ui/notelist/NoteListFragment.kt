@@ -9,9 +9,12 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.example.raxar.R
+import com.example.raxar.data.NoteDto
 import com.example.raxar.databinding.NoteListFragmentBinding
 import com.example.raxar.ui.commons.NoteListPreviewAdapter
+import com.example.raxar.ui.commons.NoteListPreviewGraphAdapter
 import com.example.raxar.util.SwipeCallback
+import com.example.raxar.view.graph.GraphView.GraphViewAdapter
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
@@ -39,6 +42,9 @@ class NoteListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val graphAdapter = NoteListPreviewGraphAdapter()
+        binding.graph.adapter = graphAdapter
 
         val adapter = NoteListPreviewAdapter {
             findNavController().navigate(
@@ -68,6 +74,7 @@ class NoteListFragment : Fragment() {
 
         viewModel.notes.removeObservers(viewLifecycleOwner)
         viewModel.notes.observe(viewLifecycleOwner) { notes ->
+            graphAdapter.submitList(notes)
             adapter.submitList(notes.sortedByDescending { it.time })
         }
 
