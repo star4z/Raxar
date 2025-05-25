@@ -5,91 +5,100 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".ui.notedetail.NoteDetailFragment">
+    tools:context=".ui.notedetail.NoteDetailFragment"
+    >
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar"
+  <ScrollView
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:fillViewport="true"
+      android:paddingTop="@dimen/toolbar_top_margin"
+      >
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar">
+        >
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:navigationIcon="@drawable/ic_back"
-            app:title="@string/app_name" />
+      <androidx.recyclerview.widget.RecyclerView
+          android:id="@+id/children"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginBottom="16dp"
+          android:layout_marginTop="16dp"
+          android:nestedScrollingEnabled="false"
+          android:orientation="vertical"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/add_child"
+          app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+          tools:listitem="@layout/note_list_preview"
+          />
 
-    </com.google.android.material.appbar.AppBarLayout>
+      <com.google.android.material.button.MaterialButton
+          android:id="@+id/add_child"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_margin="16dp"
+          android:text="@string/add_child"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/body"
+          style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+          />
 
-    <ScrollView
+      <com.google.android.material.textfield.TextInputEditText
+          android:id="@+id/title"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_margin="16dp"
+          android:background="@null"
+          android:hint="@string/title"
+          android:imeOptions="actionNext"
+          android:inputType="text|textCapSentences"
+          android:maxLines="1"
+          android:singleLine="true"
+          android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent"
+          />
+
+      <com.google.android.material.textfield.TextInputEditText
+          android:id="@+id/body"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_margin="16dp"
+          android:autoLink="all"
+          android:background="@null"
+          android:gravity="top"
+          android:hint="@string/body"
+          android:inputType="text|textMultiLine|textCapSentences"
+          android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintHeight_default="percent"
+          app:layout_constraintHeight_percent=".3"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toBottomOf="@id/title"
+          />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+  </ScrollView>
+
+  <com.google.android.material.appbar.AppBarLayout
+      android:id="@+id/appbar"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
+      >
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true"
-        android:paddingTop="@dimen/toolbar_top_margin">
+        android:layout_height="?attr/actionBarSize"
+        app:navigationIcon="@drawable/ic_back"
+        app:title="@string/app_name"
+        />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:hint="@string/title"
-                android:imeOptions="actionNext"
-                android:background="@null"
-                android:maxLines="1"
-                android:inputType="text|textCapSentences"
-                android:singleLine="true"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/body"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:autoLink="all"
-                android:gravity="top"
-                android:hint="@string/body"
-                android:background="@null"
-                android:inputType="text|textMultiLine|textCapSentences"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHeight_default="percent"
-                app:layout_constraintHeight_percent=".3"
-                app:layout_constraintStart_toStartOf="parent"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-                app:layout_constraintTop_toBottomOf="@id/title" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/add_child"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:text="@string/add_child"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/body" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/children"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                android:nestedScrollingEnabled="false"
-                android:orientation="vertical"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/add_child"
-                tools:listitem="@layout/note_list_preview" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
+  </com.google.android.material.appbar.AppBarLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

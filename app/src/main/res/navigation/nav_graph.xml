@@ -5,42 +5,42 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/noteListFragment">
 
-    <fragment
-        android:id="@+id/noteListFragment"
-        android:name="com.example.raxar.ui.notelist.NoteListFragment"
-        android:label="note_list_fragment"
-        tools:layout="@layout/note_list_fragment" >
-        <action
-            android:id="@+id/action_noteListFragment_to_noteDetailFragment"
-            app:destination="@id/noteDetailFragment" />
-        <action
-            android:id="@+id/action_noteListFragment_to_noteListRecyclerViewFragment"
-            app:destination="@id/noteListRecyclerViewFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/noteDetailFragment"
-        android:name="com.example.raxar.ui.notedetail.NoteDetailFragment"
-        android:label="note_detail_fragment"
-        tools:layout="@layout/note_detail_fragment">
-        <action
-            android:id="@+id/action_noteDetailFragment_self"
-            app:destination="@id/noteDetailFragment" />
-        <argument
-            android:name="noteId"
-            android:defaultValue="0L"
-            app:argType="long" />
-        <argument
-            android:name="parentNoteId"
-            android:defaultValue="0L"
-            app:argType="long" />
-    </fragment>
-    <fragment
-        android:id="@+id/noteListRecyclerViewFragment"
-        android:name="com.example.raxar.ui.notelist.NoteListRecyclerViewFragment"
-        android:label="note_list_fragment_2"
-        tools:layout="@layout/note_list_fragment_2">
-        <action
-            android:id="@+id/action_noteListRecyclerViewFragment_to_noteDetailFragment"
-            app:destination="@id/noteDetailFragment" />
-    </fragment>
+  <fragment
+      android:id="@+id/noteListFragment"
+      android:name="com.example.raxar.ui.notelist.NoteListFragment"
+      android:label="note_list_fragment"
+      tools:layout="@layout/note_list_fragment">
+    <action
+        android:id="@+id/action_noteListFragment_to_noteDetailFragment"
+        app:destination="@id/noteDetailFragment" />
+    <action
+        android:id="@+id/action_noteListFragment_to_noteListRecyclerViewFragment"
+        app:destination="@id/noteListRecyclerViewFragment" />
+  </fragment>
+  <fragment
+      android:id="@+id/noteDetailFragment"
+      android:name="com.example.raxar.ui.notedetail.NoteDetailFragment"
+      android:label="note_detail_fragment"
+      tools:layout="@layout/note_detail_fragment">
+    <action
+        android:id="@+id/action_noteDetailFragment_self"
+        app:destination="@id/noteDetailFragment" />
+    <argument
+        android:name="noteId"
+        android:defaultValue="0L"
+        app:argType="long" />
+    <argument
+        android:name="parentNoteId"
+        android:defaultValue="0L"
+        app:argType="long" />
+  </fragment>
+  <fragment
+      android:id="@+id/noteListRecyclerViewFragment"
+      android:name="com.example.raxar.ui.notelist.NoteListRecyclerViewFragment"
+      android:label="note_list_fragment_2"
+      tools:layout="@layout/note_list_fragment_2">
+    <action
+        android:id="@+id/action_noteListRecyclerViewFragment_to_noteDetailFragment"
+        app:destination="@id/noteDetailFragment" />
+  </fragment>
 </navigation>

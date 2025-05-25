@@ -37,105 +37,108 @@ import kotlin.math.abs
  *      of [0, values.size). Negative values will be wrapped around, for example
  */
 class CircularMaskedList<T>(
-    private val values: List<T> = listOf(),
-    var maskSize: Int = values.size,
-    private var startIndex: Int = 0
+  private val values: List<T> = listOf(),
+  var maskSize: Int = values.size,
+  private var startIndex: Int = 0,
 ) {
 
-    init {
-        startIndex = fitIndexInValuesSize(startIndex)
+  init {
+    startIndex = fitIndexInValuesSize(startIndex)
+    flipMaskIfNegative()
+  }
+
+  private fun flipMaskIfNegative() {
+    if (maskSize < 0) {
+      val tempMaskSize = if (values.isEmpty()) 0 else maskSize % values.size
+      startIndex = fitIndexInValuesSize(startIndex + tempMaskSize)
+      maskSize = -maskSize
+    }
+  }
+
+  private fun endIndex() = startIndex + maskSize - 1
+
+  fun getMaskedValues(): List<T> {
+    if (maskSize == 0) {
+      return listOf()
+    }
+
+    if (maskSize >= values.size) {
+      return values.slice(startIndex until values.size) + values.slice(0 until startIndex)
+    }
+
+    val endIndex = fitIndexInValuesSize(endIndex())
+    if (startIndex <= endIndex) {
+      return values.slice(startIndex..endIndex)
+    } else {
+      return values.slice(startIndex until values.size) + values.slice(0..endIndex)
+    }
+  }
+
+  /**
+   * Shifts the right mask bound.
+   * If indexCount is positive, the mask is extended to the right.
+   * Added or removed values are returned.
+   * If the mask is bigger than the list, the whole list is returned.
+   */
+  fun shiftRightMaskBound(indexCount: Int): List<T> {
+    Timber.d("shiftRightMaskBound(%s)", indexCount)
+    if (indexCount == 0) {
+      return listOf()
+    }
+    val range = 1..abs(indexCount)
+    val changeBy = if (indexCount > 0) 1 else -1
+    return buildList {
+      for (i in range) {
+        val oldValues = getMaskedValues()
+        maskSize += changeBy
         flipMaskIfNegative()
+        val newValues = getMaskedValues()
+        addAll(addedOrRemovedValues(oldValues, newValues))
+      }
     }
+  }
 
-    private fun flipMaskIfNegative() {
-        if (maskSize < 0) {
-            val tempMaskSize = if (values.isEmpty()) 0 else maskSize % values.size
-            startIndex = fitIndexInValuesSize(startIndex + tempMaskSize)
-            maskSize = -maskSize
-        }
+  /**
+   * Shifts the left mask bound.
+   * If indexCount is positive, the mask is extended to the left.
+   * Added or removed values are returned.
+   * If the mask is bigger than the list, the whole list is returned.
+   */
+  fun shiftLeftMaskBound(indexCount: Int): List<T> {
+    Timber.d("shiftLeftMaskBound(%s)", indexCount)
+    if (indexCount == 0) {
+      return listOf()
     }
-
-    private fun endIndex() = startIndex + maskSize - 1
-
-    fun getMaskedValues(): List<T> {
-        if (maskSize == 0) {
-            return listOf()
-        }
-
-        if (maskSize >= values.size) {
-            return values.slice(startIndex until values.size) + values.slice(0 until startIndex)
-        }
-
-        val endIndex = fitIndexInValuesSize(endIndex())
-        if (startIndex <= endIndex) {
-            return values.slice(startIndex..endIndex)
-        } else {
-            return values.slice(startIndex until values.size) + values.slice(0..endIndex)
-        }
+    val range = 1..abs(indexCount)
+    val changeBy = if (indexCount > 0) 1 else -1
+    return buildList {
+      for (i in range) {
+        val oldValues = getMaskedValues()
+        startIndex += changeBy
+        startIndex = fitIndexInValuesSize(startIndex)
+        maskSize -= changeBy
+        flipMaskIfNegative()
+        val newValues = getMaskedValues()
+        addAll(addedOrRemovedValues(oldValues, newValues))
+      }
     }
+  }
 
-    /**
-     * Shifts the right mask bound.
-     * If indexCount is positive, the mask is extended to the right.
-     * Added or removed values are returned.
-     * If the mask is bigger than the list, the whole list is returned.
-     */
-    fun shiftRightMaskBound(indexCount: Int): List<T> {
-        Timber.d("shiftRightMaskBound(%s)", indexCount)
-        if (indexCount == 0) {
-            return listOf()
-        }
-        val range = 1..abs(indexCount)
-        val changeBy = if (indexCount > 0) 1 else -1
-        return buildList {
-            for (i in range) {
-                val oldValues = getMaskedValues()
-                maskSize += changeBy
-                flipMaskIfNegative()
-                val newValues = getMaskedValues()
-                addAll(addedOrRemovedValues(oldValues, newValues))
-            }
-        }
+  private fun fitIndexInValuesSize(index: Int): Int {
+    if (values.isEmpty()) {
+      return 0
     }
+    return if (index < 0) values.size + (index % values.size) else (index % values.size)
+  }
 
-    /**
-     * Shifts the left mask bound.
-     * If indexCount is positive, the mask is extended to the left.
-     * Added or removed values are returned.
-     * If the mask is bigger than the list, the whole list is returned.
-     */
-    fun shiftLeftMaskBound(indexCount: Int): List<T> {
-        Timber.d("shiftLeftMaskBound(%s)", indexCount)
-        if (indexCount == 0) {
-            return listOf()
-        }
-        val range = 1..abs(indexCount)
-        val changeBy = if (indexCount > 0) 1 else -1
-        return buildList {
-            for (i in range) {
-                val oldValues = getMaskedValues()
-                startIndex += changeBy
-                startIndex = fitIndexInValuesSize(startIndex)
-                maskSize -= changeBy
-                flipMaskIfNegative()
-                val newValues = getMaskedValues()
-                addAll(addedOrRemovedValues(oldValues, newValues))
-            }
-        }
+  private fun addedOrRemovedValues(
+    oldValues: List<T>,
+    newValues: List<T>,
+  ): List<T> {
+    return if (oldValues.size < newValues.size) {
+      newValues.minus(oldValues.toSet())
+    } else {
+      oldValues.minus(newValues.toSet())
     }
-
-    private fun fitIndexInValuesSize(index: Int): Int {
-        if (values.isEmpty()) {
-            return 0
-        }
-        return if (index < 0) values.size + (index % values.size) else (index % values.size)
-    }
-
-    private fun addedOrRemovedValues(oldValues: List<T>, newValues: List<T>): List<T> {
-        return if (oldValues.size < newValues.size) {
-            newValues.minus(oldValues.toSet())
-        } else {
-            oldValues.minus(newValues.toSet())
-        }
-    }
+  }
 }

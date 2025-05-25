@@ -1,12 +1,12 @@
 <resources>
-    <string name="app_name">Raxar</string>
-    <string name="action_add_note">Add a note</string>
-    <string name="title">Title</string>
-    <string name="body">Note</string>
-    <string name="add_child">Add a related Note</string>
-    <string name="deleted_note">Deleted note.</string>
-    <string name="undo">Undo</string>
-    <string name="discarded_empty_note">Discarded empty note.</string>
-    <string name="cannot_add_child_to_empty_note">Cannot add child to empty note.</string>
-    <string name="action_view_as_list">View as list</string>
+  <string name="app_name">Raxar</string>
+  <string name="action_add_note">Add a note</string>
+  <string name="title">Title</string>
+  <string name="body">Note</string>
+  <string name="add_child">Add a related Note</string>
+  <string name="deleted_note">Deleted note.</string>
+  <string name="undo">Undo</string>
+  <string name="discarded_empty_note">Discarded empty note.</string>
+  <string name="cannot_add_child_to_empty_note">Cannot add child to empty note.</string>
+  <string name="action_view_as_list">View as list</string>
 </resources>

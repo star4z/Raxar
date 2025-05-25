@@ -14,14 +14,14 @@ import javax.inject.Singleton
 @Module
 class DatabaseModule {
 
-    @Singleton
-    @Provides
-    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
-        return AppDatabase.getInstance(context)
-    }
+  @Singleton
+  @Provides
+  fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
+    return AppDatabase.getInstance(context)
+  }
 
-    @Provides
-    fun provideNoteDao(appDatabase: AppDatabase): NoteDao {
-        return appDatabase.noteDao()
-    }
+  @Provides
+  fun provideNoteDao(appDatabase: AppDatabase): NoteDao {
+    return appDatabase.noteDao()
+  }
 }
