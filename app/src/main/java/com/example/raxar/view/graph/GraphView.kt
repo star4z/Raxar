@@ -22,10 +22,6 @@ class GraphView : View {
   private val nodeTextSize = 40f
   private val snapping = false
   var adapter: GraphViewAdapter<*>? = null
-    set(value) {
-      value?.setMaskSize(graph.size)
-      field = value
-    }
 
   constructor(context: Context?) : this(context, null, 0, 0)
   constructor(
@@ -56,12 +52,12 @@ class GraphView : View {
   abstract class GraphViewAdapter<T> {
     private var values = CircularMaskedList<T>()
 
-    fun setMaskSize(size: Int) {
-      values.maskSize = size
+    fun setMaskSize(maskSize: Int) {
+      values.shiftRightMaskBound(maskSize - values.maskSize)
     }
 
     fun submitList(list: List<T>) {
-      values = CircularMaskedList(list)
+      values = CircularMaskedList(list, values.maskSize)
     }
 
     fun onValuesChanged(

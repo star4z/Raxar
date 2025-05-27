@@ -38,9 +38,12 @@ import kotlin.math.abs
  */
 class CircularMaskedList<T>(
   private val values: List<T> = listOf(),
-  var maskSize: Int = values.size,
+  maskSize: Int = values.size,
   private var startIndex: Int = 0,
 ) {
+
+  var maskSize = maskSize
+    private set
 
   init {
     startIndex = fitIndexInValuesSize(startIndex)
