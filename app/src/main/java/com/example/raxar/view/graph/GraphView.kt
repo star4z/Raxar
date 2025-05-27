@@ -22,6 +22,10 @@ class GraphView : View {
   private val nodeTextSize = 40f
   private val snapping = false
   var adapter: GraphViewAdapter<*>? = null
+    set(value) {
+      field = value
+      value?.callback = { invalidate() }
+    }
 
   constructor(context: Context?) : this(context, null, 0, 0)
   constructor(
@@ -51,16 +55,19 @@ class GraphView : View {
 
   abstract class GraphViewAdapter<T> {
     private var values = CircularMaskedList<T>()
+    var callback: (() -> Unit)? = null
 
     fun setMaskSize(maskSize: Int) {
       values.shiftRightMaskBound(maskSize - values.maskSize)
     }
 
     fun submitList(list: List<T>) {
+      Timber.d("submitList(%s), values.maskSize=%s", list, values.maskSize)
       values = CircularMaskedList(list, values.maskSize)
+      callback?.invoke()
     }
 
-    fun onValuesChanged(
+    fun changeMaskValues(
       leftShift: Int,
       rightShift: Int,
     ) {
@@ -101,7 +108,7 @@ class GraphView : View {
     val leftShift = newFirstIndex - oldFirstIndex
     val rightShift = newLastIndex - oldLastIndex
 
-    adapter?.onValuesChanged(leftShift, rightShift)
+    adapter?.changeMaskValues(leftShift, rightShift)
 
     for (node in newVisibleNodes.withIndex()) {
       drawNodeWithLine(canvas, node.value.node)
