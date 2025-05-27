@@ -25,8 +25,9 @@ class GraphView : View {
   var adapter: GraphViewAdapter<*>? = null
     set(value) {
       field = value
-      value?.callback = { invalidate() }
+      value?.callback = { updateState() }
     }
+  private var visibleNodes = listOf<Node>()
 
   constructor(context: Context?) : this(context, null, 0, 0)
   constructor(
@@ -95,7 +96,15 @@ class GraphView : View {
 
   override fun onDraw(canvas: Canvas) {
     super.onDraw(canvas)
+    for (node in visibleNodes.withIndex()) {
+      drawNodeWithLine(canvas, node.value)
+      adapter?.let {
+        drawTitle(it.getItem(node.index), canvas, node.value)
+      }
+    }
+  }
 
+  private fun updateState() {
     val oldVisibleNodes = getOldVisibleNodes()
     Timber.d("oldVisibleNodes=%s", oldVisibleNodes.map { it.index })
 
@@ -113,12 +122,9 @@ class GraphView : View {
 
     adapter?.changeMaskValues(leftShift, rightShift)
 
-    for (node in newVisibleNodes.withIndex()) {
-      drawNodeWithLine(canvas, node.value.node)
-      adapter?.let {
-        drawTitle(it.getItem(node.index), canvas, node.value.node)
-      }
-    }
+    visibleNodes = newVisibleNodes.map { it.node }
+
+    invalidate()
   }
 
   private fun getOldVisibleNodes() = graph.nodes.withIndex()
@@ -130,7 +136,6 @@ class GraphView : View {
     }
     .sortedBy { it.angle }
     .reversed()
-    .toList()
 
   private fun drawNodeWithLine(
     canvas: Canvas,
@@ -177,7 +182,7 @@ class GraphView : View {
         val newAngle = getAngle(event.x, event.y)
         val angleDifference = (newAngle - oldAngle)
         graph.rotation -= angleDifference
-        invalidate()
+        updateState()
         true
       }
 
@@ -185,7 +190,7 @@ class GraphView : View {
         if (snapping) {
           graph.snapToNearest()
         }
-        invalidate()
+        updateState()
         true
       }
 
