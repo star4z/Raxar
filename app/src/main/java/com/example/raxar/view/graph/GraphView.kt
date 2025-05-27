@@ -28,7 +28,7 @@ class GraphView : View {
       field = value
       value?.callback = { updateState() }
     }
-  private var visibleNodes = listOf<Node>()
+  private var visibleNodes = listOf<AngledNode>()
 
   constructor(context: Context?) : this(context, null, 0, 0)
   constructor(
@@ -92,7 +92,7 @@ class GraphView : View {
   }
 
   private data class AngledNode(
-    val index: Int,
+    val graphIndex: Int,
     val angle: Double,
     val node: Node,
   )
@@ -100,37 +100,46 @@ class GraphView : View {
   override fun onDraw(canvas: Canvas) {
     super.onDraw(canvas)
     for (node in visibleNodes.withIndex()) {
-      drawNodeWithLine(canvas, node.value)
+      drawNodeWithLine(canvas, node.value.node)
       adapter?.let {
-        drawTitle(it.getItem(node.index), canvas, node.value)
+        drawTitle(it.getItem(node.index), canvas, node.value.node)
       }
     }
   }
 
   private fun updateState() {
-    val oldVisibleNodes = getOldVisibleNodes()
-    Timber.d("oldVisibleNodes=%s", oldVisibleNodes.map { it.index })
+    val oldVisibleNodes = getVisibleNodes()
 
     graph.update(width, height)
 
-    val newVisibleNodes = getOldVisibleNodes()
-    Timber.d("newVisibleNodes=%s", newVisibleNodes.map { it.index })
+    val newVisibleNodes = getVisibleNodes()
 
-    val oldFirstIndex = oldVisibleNodes.firstOrNull()?.index ?: 0
-    val oldLastIndex = oldVisibleNodes.lastOrNull()?.index ?: 0
-    val newFirstIndex = newVisibleNodes.firstOrNull()?.index ?: 0
-    val newLastIndex = newVisibleNodes.lastOrNull()?.index ?: 0
-    val leftShift = newFirstIndex - oldFirstIndex
-    val rightShift = newLastIndex - oldLastIndex
+    if (oldVisibleNodes.isEmpty()) {
+      Timber.d("newVisibleNodes=%s", newVisibleNodes.map { it.graphIndex })
+      adapter?.setMaskSize(newVisibleNodes.size)
+    } else {
 
-    adapter?.changeMaskValues(leftShift, rightShift)
+      val newFirstIndex = newVisibleNodes.firstOrNull()?.graphIndex ?: 0
+      val newLastIndex = newVisibleNodes.lastOrNull()?.graphIndex ?: 0
+      val oldFirstIndex = oldVisibleNodes.firstOrNull()?.graphIndex ?: newFirstIndex
+      val oldLastIndex = oldVisibleNodes.lastOrNull()?.graphIndex ?: newLastIndex
+      val leftShift = newFirstIndex - oldFirstIndex
+      val rightShift = newLastIndex - oldLastIndex
 
-    visibleNodes = newVisibleNodes.map { it.node }
+      if (leftShift != 0 || rightShift != 0) {
+        Timber.d(
+          "oldVisibleNodes=%s, newVisibleNodes=%s", oldVisibleNodes.map { it.graphIndex },
+          newVisibleNodes.map { it.graphIndex })
+        adapter?.changeMaskValues(leftShift, rightShift)
+      }
+    }
+
+    visibleNodes = newVisibleNodes
 
     invalidate()
   }
 
-  private fun getOldVisibleNodes() = graph.nodes.withIndex()
+  private fun getVisibleNodes() = graph.nodes.withIndex()
     .map { AngledNode(it.index, getAngle(it.value), it.value) }
     .filter {
       val outerAngle = PI / 2
@@ -173,7 +182,6 @@ class GraphView : View {
 
   @SuppressLint("ClickableViewAccessibility")
   override fun onTouchEvent(event: MotionEvent): Boolean {
-    Timber.d("action=${event.action}")
     return when (event.action) {
       MotionEvent.ACTION_DOWN -> {
         true

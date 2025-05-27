@@ -77,6 +77,27 @@ class CircularMaskedList<T>(
     }
   }
 
+  fun getMaskedValuesWithIndex(): List<IndexedValue<T>> {
+    if (maskSize == 0) {
+      return listOf()
+    }
+
+    if (maskSize >= values.size) {
+      return values.withIndex().toList().slice(startIndex until values.size) + values.withIndex()
+        .toList()
+        .slice(0 until startIndex)
+    }
+
+    val endIndex = fitIndexInValuesSize(endIndex())
+    return if (startIndex <= endIndex) {
+      values.withIndex().toList().slice(startIndex..endIndex)
+    } else {
+      values.withIndex().toList().slice(startIndex until values.size) + values.withIndex()
+        .toList()
+        .slice(0..endIndex)
+    }
+  }
+
   /**
    * Shifts the right mask bound.
    * Essentially, changes the mask size.
@@ -86,7 +107,8 @@ class CircularMaskedList<T>(
    */
   fun shiftRightMaskBound(indexCount: Int): List<T> {
     Timber.d(
-      "shiftRightMaskBound(%s), startIndex=%s, maskSize=%s", indexCount, startIndex, maskSize
+      "shiftRightMaskBound(%s), startIndex=%s, maskSize=%s, values=%s", indexCount, startIndex,
+      maskSize, getMaskedValuesWithIndex().map { it.index }
     )
     if (indexCount == 0) {
       return listOf()
@@ -103,8 +125,8 @@ class CircularMaskedList<T>(
       }
     }
     Timber.d(
-      "shiftRightMaskBound(%s) = %s, startIndex=%s, maskSize=%s", indexCount, buildList, startIndex,
-      maskSize
+      "then startIndex=%s, maskSize=%s, values=%s", startIndex,
+      maskSize, getMaskedValuesWithIndex().map { it.index }
     )
     return buildList
   }
@@ -118,7 +140,8 @@ class CircularMaskedList<T>(
    */
   fun shiftLeftMaskBound(indexCount: Int): List<T> {
     Timber.d(
-      "shiftLeftMaskBound(%s), startIndex=%s, maskSize=%s", indexCount, startIndex, maskSize
+      "shiftLeftMaskBound(%s), startIndex=%s, maskSize=%s, values=%s", indexCount, startIndex,
+      maskSize, getMaskedValuesWithIndex().map { it.index }
     )
     if (indexCount == 0) {
       return listOf()
@@ -137,8 +160,8 @@ class CircularMaskedList<T>(
       }
     }
     Timber.d(
-      "shiftLeftMaskBound(%s) = %s, startIndex=%s, maskSize=%s", indexCount, buildList, startIndex,
-      maskSize
+      "then startIndex=%s, maskSize=%s, values=%s", startIndex,
+      maskSize, getMaskedValuesWithIndex().map { it.index }
     )
     return buildList
   }

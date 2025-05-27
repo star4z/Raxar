@@ -1,6 +1,5 @@
 package com.example.raxar.view.graph
 
-import timber.log.Timber
 import kotlin.math.PI
 import kotlin.math.asin
 import kotlin.math.cos
@@ -58,7 +57,6 @@ open class Graph : AbstractList<Node>() {
           ((value % (2 * PI)) + 2 * PI) % (2 * PI)
         }
       }
-      Timber.d("rotation=$field")
     }
 
   private fun geometricRadiusWithPadding() = geometricRadius + padding
@@ -123,7 +121,8 @@ open class Graph : AbstractList<Node>() {
     nodes = newNodes
   }
 
-  fun getStartingOffsetForAllRows() = (-maxDisplayedNodesMiddleRow + 1) / 2 * angleBetweenNodes
+  private fun getStartingOffsetForAllRows() =
+    (-maxDisplayedNodesMiddleRow + 1) / 2 * angleBetweenNodes
 
   override fun iterator(): Iterator<Node> {
     return nodes.iterator()
@@ -146,7 +145,6 @@ open class Graph : AbstractList<Node>() {
       asin(
         (width * distanceFromOriginXToWidthRatio - geometricRadiusWithPadding()) / (height * distanceFromOriginYToHeightRatio)
       )
-    Timber.d("maxAngleFromVertical=$maxAngleFromVertical")
 
     // Number of nodes that will fit in the circumference of the middle row, including padding
     maxNodesMiddleRow =
@@ -157,7 +155,6 @@ open class Graph : AbstractList<Node>() {
     // Number of nodes in the middle row that will fit between the vertical and the specified angle
     maxDisplayedNodesMiddleRow =
       (maxNodesMiddleRow * maxAngleFromVertical / PI).toInt()
-    Timber.d("maxDisplayedNodesMiddleRow=$maxDisplayedNodesMiddleRow")
 
     nodes = List(maxNodesMiddleRow * rows) { Node() }
 
