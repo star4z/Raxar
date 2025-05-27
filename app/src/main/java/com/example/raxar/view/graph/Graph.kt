@@ -8,11 +8,20 @@ import kotlin.math.roundToInt
 import kotlin.math.sin
 
 open class Graph : AbstractList<Node>() {
-  private var angleBetweenNodes: Double = 0.0
+  private var angleBetweenNodes: Double = 0.0 // default val is unused
+
+  // Number of nodes in the middle row that will fit between the vertical and a specified angle
+  // Used to calculate the positions of the first nodes in each row
+  // "Displayed" meaning between the two view bounds. Currently, this is not used for visibility
+  // calculations and instead is only for indexing purposes.
   private var maxDisplayedNodesMiddleRow: Int =
-    0 // "Displayed" meaning between the two screen bounds
-  private var maxNodesMiddleRow: Int = 0
-  private var maxAngleFromVertical: Double = 0.0
+    0 // default val is unused
+
+  private var maxNodesMiddleRow: Int = 0 // default val is unused
+
+  // Max angle that can fit in the space between the vertical and a gap 1 node
+  // width + padding from the edge of the view
+  var maxAngleFromVertical: Double = 0.0 // default val is unused
   var nodes = listOf<Node>()
 
   var rows = 1
@@ -23,10 +32,10 @@ open class Graph : AbstractList<Node>() {
   // Distance of origin to the top edge of the screen as a proportion of the view height
   var heightToOriginYRatio = 1.0 / 5.0
 
-  // Distance of nodes to the origin as a proportion of the view height
+  // Distance of the origin from the top edge of the view as a proportion of the view height
   var distanceFromOriginYToHeightRatio = 11.0 / 20.0
 
-  // Distance of node to the origin as a proportion of the view width
+  // Distance of the origin from the left edge of the view as a proportion of the view width
   var distanceFromOriginXToWidthRatio = 1.0 / 2.0
 
   // Distance from node to origin
@@ -121,27 +130,40 @@ open class Graph : AbstractList<Node>() {
   }
 
   fun update(
-      width: Int,
-      height: Int,
+    width: Int,
+    height: Int,
   ) {
     this.width = width.toDouble()
     this.height = height.toDouble()
     origin = Node(width * widthToOriginXRatio, height * heightToOriginYRatio)
 
     orbitalRadius = distanceFromOriginYToHeightRatio * height
+
+    // t = asin(opp/hyp). Max angle that can fit in the space between the vertical and a gap 1 node
+    // width + padding from the edge of the view
+    // This is an arbitrary calculation
     maxAngleFromVertical =
       asin(
         (width * distanceFromOriginXToWidthRatio - geometricRadiusWithPadding()) / (height * distanceFromOriginYToHeightRatio)
       )
+    Timber.d("maxAngleFromVertical=$maxAngleFromVertical")
+
+    // Number of nodes that will fit in the circumference of the middle row, including padding
     maxNodesMiddleRow =
       (PI / asin(
         geometricRadiusWithPadding() / (distanceFromOriginYToHeightRatio * height)
       )).toInt()
+
+    // Number of nodes in the middle row that will fit between the vertical and the specified angle
     maxDisplayedNodesMiddleRow =
       (maxNodesMiddleRow * maxAngleFromVertical / PI).toInt()
+    Timber.d("maxDisplayedNodesMiddleRow=$maxDisplayedNodesMiddleRow")
+
     nodes = List(maxNodesMiddleRow * rows) { Node() }
+
+    // Angle between adjacent nodes in the middle row (currently used for all rows)
+    // All adjacent nodes are equidistant
     angleBetweenNodes = 2 * PI / maxNodesMiddleRow
-    Timber.d("$maxDisplayedNodesMiddleRow")
     arrange()
   }
 
