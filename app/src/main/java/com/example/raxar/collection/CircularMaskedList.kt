@@ -70,9 +70,6 @@ class CircularMaskedList<T>(
     }
 
     val endIndex = fitIndexInValuesSize(endIndex())
-    Timber.d(
-      "startIndex=$startIndex,maskSize=$maskSize,valuesSize=${values.size}"
-    )
     return if (startIndex <= endIndex) {
       values.slice(startIndex..endIndex)
     } else {

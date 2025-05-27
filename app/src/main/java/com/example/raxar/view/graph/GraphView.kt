@@ -11,6 +11,7 @@ import android.view.MotionEvent
 import android.view.View
 import com.example.raxar.collection.CircularMaskedList
 import timber.log.Timber
+import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.pow
 
@@ -96,10 +97,12 @@ class GraphView : View {
     super.onDraw(canvas)
 
     val oldVisibleNodes = getOldVisibleNodes()
+    Timber.d("oldVisibleNodes=%s", oldVisibleNodes.map { it.index })
 
     graph.update(width, height)
 
     val newVisibleNodes = getOldVisibleNodes()
+    Timber.d("newVisibleNodes=%s", newVisibleNodes.map { it.index })
 
     val oldFirstIndex = oldVisibleNodes.firstOrNull()?.index ?: 0
     val oldLastIndex = oldVisibleNodes.lastOrNull()?.index ?: 0
@@ -120,10 +123,11 @@ class GraphView : View {
 
   private fun getOldVisibleNodes() = graph.nodes.withIndex()
     .map { AngledNode(it.index, getAngle(it.value), it.value) }
-    // .filter {
-    //   val outerAngle = graph.getStartingOffsetForAllRows()
-    //   it.angle in outerAngle + PI / 2..-outerAngle + PI / 2
-    // }
+    .filter {
+      val outerAngle = PI / 2
+      val b = it.angle in (-outerAngle + PI / 2)..(outerAngle + PI / 2)
+      b
+    }
     .sortedBy { it.angle }
     .reversed()
     .toList()
