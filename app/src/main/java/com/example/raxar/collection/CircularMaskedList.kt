@@ -82,6 +82,7 @@ class CircularMaskedList<T>(
 
   /**
    * Shifts the right mask bound.
+   * Essentially, changes the mask size.
    * If indexCount is positive, the mask is extended to the right.
    * Added or removed values are returned.
    * If the mask is bigger than the list, the whole list is returned.
@@ -113,6 +114,7 @@ class CircularMaskedList<T>(
 
   /**
    * Shifts the left mask bound.
+   * Essentially, shifts the startIndex and changes the mask size to keep the end index.
    * If indexCount is positive, the mask is extended to the left.
    * Added or removed values are returned.
    * If the mask is bigger than the list, the whole list is returned.
