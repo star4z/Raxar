@@ -5,7 +5,9 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.Rect
+import android.text.StaticLayout
+import android.text.TextPaint
+import android.text.TextUtils.TruncateAt.END
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -16,9 +18,9 @@ import kotlin.math.atan2
 
 class GraphView : View {
 
-  private val paint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
+  private val nodeBgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+  private val nodeTextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
   private val graph: Graph
-  private val textBounds = Rect()
   private val nodeTextSize = 40f
   private val snapping = false
   var adapter: GraphViewAdapter<*>? = null
@@ -48,9 +50,11 @@ class GraphView : View {
     defStyleAttr: Int,
     defStyleRes: Int,
   ) : super(context, attrs, defStyleAttr, defStyleRes) {
-    paint.color = Color.RED
-    paint.textAlign = Paint.Align.CENTER
-
+    nodeBgPaint.color = Color.RED
+    nodeBgPaint.textAlign = Paint.Align.CENTER
+    nodeTextPaint.color = Color.WHITE
+    nodeTextPaint.textSize = nodeTextSize
+    nodeTextPaint.textAlign = Paint.Align.CENTER
     graph = Graph()
   }
 
@@ -140,13 +144,13 @@ class GraphView : View {
     canvas: Canvas,
     node: Node,
   ) {
-    paint.color = Color.RED
     canvas.drawLine(
-      graph.origin.x.toFloat(), graph.origin.y.toFloat(), node.x.toFloat(), node.y.toFloat(), paint
+      graph.origin.x.toFloat(), graph.origin.y.toFloat(), node.x.toFloat(), node.y.toFloat(),
+      nodeBgPaint
     )
 
     canvas.drawCircle(
-      node.x.toFloat(), node.y.toFloat(), graph.geometricRadius.toFloat(), paint
+      node.x.toFloat(), node.y.toFloat(), graph.geometricRadius.toFloat(), nodeBgPaint
     )
   }
 
@@ -155,13 +159,16 @@ class GraphView : View {
     canvas: Canvas,
     node: Node,
   ) {
-    paint.color = Color.WHITE
-    paint.textSize = nodeTextSize
-    paint.textAlign = Paint.Align.CENTER
-    paint.getTextBounds(title, 0, title.length, textBounds)
-    canvas.drawText(
-      title, node.x.toFloat(), node.y.toFloat() - textBounds.exactCenterY(), paint
+    val staticLayout = StaticLayout.Builder.obtain(
+      title, 0, title.length, nodeTextPaint, graph.geometricRadius.toInt() * 2
     )
+      .setEllipsize(END)
+      .setMaxLines(1)
+      .build()
+    canvas.save()
+    canvas.translate(node.x.toFloat(), node.y.toFloat() - staticLayout.height / 2.0f)
+    staticLayout.draw(canvas)
+    canvas.restore()
   }
 
   @SuppressLint("ClickableViewAccessibility")
