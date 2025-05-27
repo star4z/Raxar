@@ -13,7 +13,6 @@ import com.example.raxar.collection.CircularMaskedList
 import timber.log.Timber
 import kotlin.math.PI
 import kotlin.math.atan2
-import kotlin.math.pow
 
 class GraphView : View {
 
@@ -211,17 +210,5 @@ class GraphView : View {
     val height = y - graph.origin.y
     val width = x - graph.origin.x
     return atan2(height, width)
-  }
-
-  private fun inCircle(
-    x: Float,
-    y: Float,
-    circleCenterX: Double,
-    circleCenterY: Double,
-    circleRadius: Double,
-  ): Boolean {
-    val dx = (x - circleCenterX).pow(2.0)
-    val dy = (y - circleCenterY).pow(2.0)
-    return dx + dy < circleRadius.pow(2.0)
   }
 }
