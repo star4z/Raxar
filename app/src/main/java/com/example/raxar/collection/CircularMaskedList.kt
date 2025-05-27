@@ -67,10 +67,13 @@ class CircularMaskedList<T>(
     }
 
     val endIndex = fitIndexInValuesSize(endIndex())
-    if (startIndex <= endIndex) {
-      return values.slice(startIndex..endIndex)
+    Timber.d(
+      "startIndex=$startIndex,maskSize=$maskSize,valuesSize=${values.size}"
+    )
+    return if (startIndex <= endIndex) {
+      values.slice(startIndex..endIndex)
     } else {
-      return values.slice(startIndex until values.size) + values.slice(0..endIndex)
+      values.slice(startIndex until values.size) + values.slice(0..endIndex)
     }
   }
 
@@ -81,13 +84,15 @@ class CircularMaskedList<T>(
    * If the mask is bigger than the list, the whole list is returned.
    */
   fun shiftRightMaskBound(indexCount: Int): List<T> {
-    Timber.d("shiftRightMaskBound(%s)", indexCount)
+    Timber.d(
+      "shiftRightMaskBound(%s), startIndex=%s, maskSize=%s", indexCount, startIndex, maskSize
+    )
     if (indexCount == 0) {
       return listOf()
     }
     val range = 1..abs(indexCount)
     val changeBy = if (indexCount > 0) 1 else -1
-    return buildList {
+    val buildList = buildList {
       for (i in range) {
         val oldValues = getMaskedValues()
         maskSize += changeBy
@@ -96,6 +101,11 @@ class CircularMaskedList<T>(
         addAll(addedOrRemovedValues(oldValues, newValues))
       }
     }
+    Timber.d(
+      "shiftRightMaskBound(%s) = %s, startIndex=%s, maskSize=%s", indexCount, buildList, startIndex,
+      maskSize
+    )
+    return buildList
   }
 
   /**
@@ -105,13 +115,15 @@ class CircularMaskedList<T>(
    * If the mask is bigger than the list, the whole list is returned.
    */
   fun shiftLeftMaskBound(indexCount: Int): List<T> {
-    Timber.d("shiftLeftMaskBound(%s)", indexCount)
+    Timber.d(
+      "shiftLeftMaskBound(%s), startIndex=%s, maskSize=%s", indexCount, startIndex, maskSize
+    )
     if (indexCount == 0) {
       return listOf()
     }
     val range = 1..abs(indexCount)
     val changeBy = if (indexCount > 0) 1 else -1
-    return buildList {
+    val buildList = buildList {
       for (i in range) {
         val oldValues = getMaskedValues()
         startIndex += changeBy
@@ -122,6 +134,11 @@ class CircularMaskedList<T>(
         addAll(addedOrRemovedValues(oldValues, newValues))
       }
     }
+    Timber.d(
+      "shiftLeftMaskBound(%s) = %s, startIndex=%s, maskSize=%s", indexCount, buildList, startIndex,
+      maskSize
+    )
+    return buildList
   }
 
   private fun fitIndexInValuesSize(index: Int): Int {
