@@ -107,7 +107,7 @@ class GraphView : View {
     }
   }
 
-  private fun updateState() {
+  private fun updateState(angleDifference: Double = 0.0) {
     val oldVisibleNodes = getVisibleNodes()
 
     graph.update(width, height)
@@ -118,17 +118,35 @@ class GraphView : View {
       Timber.d("newVisibleNodes=%s", newVisibleNodes.map { it.graphIndex })
       adapter?.setMaskSize(newVisibleNodes.size)
     } else {
-
       val newFirstIndex = newVisibleNodes.firstOrNull()?.graphIndex ?: 0
       val newLastIndex = newVisibleNodes.lastOrNull()?.graphIndex ?: 0
       val oldFirstIndex = oldVisibleNodes.firstOrNull()?.graphIndex ?: newFirstIndex
       val oldLastIndex = oldVisibleNodes.lastOrNull()?.graphIndex ?: newLastIndex
-      val leftShift = newFirstIndex - oldFirstIndex
-      val rightShift = newLastIndex - oldLastIndex
+
+      // Negative angleDifference is clockwise.
+      val leftShift =
+        if (oldFirstIndex > newFirstIndex && angleDifference < 0)
+        // If the angle rotated left but the index decreased, we wrapped around.
+        // Ex. if highest index is 10: 11 - 10 + 0 = 1. 11 - 10 + 1 = 2.
+          graph.nodes.size - oldFirstIndex + newFirstIndex
+        else if (oldFirstIndex < newFirstIndex && angleDifference > 0)
+        // If the angle rotated right but the index increased, we wrapped around.
+        // Ex. if highest index is 10: -(11 - 10 + 0) = -1
+          -(graph.nodes.size - newFirstIndex + oldFirstIndex)
+        else newFirstIndex - oldFirstIndex
+      val rightShift =
+        if (oldLastIndex > newLastIndex && angleDifference < 0)
+        // Ex. 10 -> 0: 11 - 10 + 0
+          graph.nodes.size - oldLastIndex + newLastIndex
+        else if (oldLastIndex < newLastIndex && angleDifference > 0)
+        // Ex. 0 -> 10: -(11 - 10 + 0)
+          -(graph.nodes.size - newLastIndex + oldLastIndex)
+        else newLastIndex - oldLastIndex
 
       if (leftShift != 0 || rightShift != 0) {
         Timber.d(
-          "oldVisibleNodes=%s, newVisibleNodes=%s", oldVisibleNodes.map { it.graphIndex },
+          "angleDifference=%s, oldVisibleNodes=%s, newVisibleNodes=%s", angleDifference,
+          oldVisibleNodes.map { it.graphIndex },
           newVisibleNodes.map { it.graphIndex })
         adapter?.changeMaskValues(leftShift, rightShift)
       }
@@ -196,7 +214,7 @@ class GraphView : View {
         val newAngle = getAngle(event.x, event.y)
         val angleDifference = (newAngle - oldAngle)
         graph.rotation -= angleDifference
-        updateState()
+        updateState(-angleDifference)
         true
       }
 
