@@ -11,6 +11,7 @@ import android.text.TextUtils.TruncateAt.END
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import androidx.core.graphics.withTranslation
 import com.example.raxar.collection.CircularMaskedList
 import timber.log.Timber
 import kotlin.math.PI
@@ -19,16 +20,18 @@ import kotlin.math.atan2
 class GraphView : View {
 
   private val nodeBgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+  private val fadedNodePaint = Paint(Paint.ANTI_ALIAS_FLAG)
   private val nodeTextPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
   private val graph: Graph
   private val nodeTextSize = 40f
   private val snapping = false
+  private val outerAngle = PI / 2
   var adapter: GraphViewAdapter<*>? = null
     set(value) {
       field = value
       value?.callback = { updateState() }
     }
-  private var visibleNodes = listOf<AngledNode>()
+  private var nodes = listOf<AngledNode>()
 
   constructor(context: Context?) : this(context, null, 0, 0)
   constructor(
@@ -52,6 +55,7 @@ class GraphView : View {
   ) : super(context, attrs, defStyleAttr, defStyleRes) {
     nodeBgPaint.color = Color.RED
     nodeBgPaint.textAlign = Paint.Align.CENTER
+    fadedNodePaint.color = Color.MAGENTA
     nodeTextPaint.color = Color.WHITE
     nodeTextPaint.textSize = nodeTextSize
     nodeTextPaint.textAlign = Paint.Align.CENTER
@@ -95,24 +99,30 @@ class GraphView : View {
     val graphIndex: Int,
     val angle: Double,
     val node: Node,
+    val visible: Boolean,
   )
 
   override fun onDraw(canvas: Canvas) {
     super.onDraw(canvas)
-    for (node in visibleNodes.withIndex()) {
-      drawNodeWithLine(canvas, node.value.node)
-      adapter?.let {
-        drawTitle(it.getItem(node.index), canvas, node.value.node)
+    for (node in nodes.withIndex()) {
+      if (node.value.visible) {
+        drawNodeWithLine(canvas, node.value.node, nodeBgPaint)
+        adapter?.let {
+          drawTitle(it.getItem(node.index), canvas, node.value.node)
+        }
+      } else {
+        drawNodeWithLine(canvas, node.value.node, fadedNodePaint)
       }
     }
   }
 
   private fun updateState(angleDifference: Double = 0.0) {
-    val oldVisibleNodes = getVisibleNodes()
+    val oldVisibleNodes = getNodes().filter { it.visible }
 
     graph.update(width, height)
 
-    val newVisibleNodes = getVisibleNodes()
+    val newNodes = getNodes()
+    val newVisibleNodes = newNodes.filter { it.visible }
 
     if (oldVisibleNodes.isEmpty()) {
       Timber.d("newVisibleNodes=%s", newVisibleNodes.map { it.graphIndex })
@@ -152,17 +162,18 @@ class GraphView : View {
       }
     }
 
-    visibleNodes = newVisibleNodes
+    nodes = newNodes
 
     invalidate()
   }
 
-  private fun getVisibleNodes() = graph.nodes.withIndex()
-    .map { AngledNode(it.index, getAngle(it.value), it.value) }
-    .filter {
-      val outerAngle = PI / 2
-      val b = it.angle in (-outerAngle + PI / 2)..(outerAngle + PI / 2)
-      b
+  private fun getNodes() = graph.nodes.withIndex()
+    .map {
+      val angle = getAngle(it.value)
+      AngledNode(
+        it.index, angle, it.value,
+        angle in (-outerAngle + PI / 2)..(outerAngle + PI / 2)
+      )
     }
     .sortedBy { it.angle }
     .reversed()
@@ -170,14 +181,15 @@ class GraphView : View {
   private fun drawNodeWithLine(
     canvas: Canvas,
     node: Node,
+    paint: Paint,
   ) {
     canvas.drawLine(
       graph.origin.x.toFloat(), graph.origin.y.toFloat(), node.x.toFloat(), node.y.toFloat(),
-      nodeBgPaint
+      paint
     )
 
     canvas.drawCircle(
-      node.x.toFloat(), node.y.toFloat(), graph.geometricRadius.toFloat(), nodeBgPaint
+      node.x.toFloat(), node.y.toFloat(), graph.geometricRadius.toFloat(), paint
     )
   }
 
@@ -192,10 +204,9 @@ class GraphView : View {
       .setEllipsize(END)
       .setMaxLines(1)
       .build()
-    canvas.save()
-    canvas.translate(node.x.toFloat(), node.y.toFloat() - staticLayout.height / 2.0f)
-    staticLayout.draw(canvas)
-    canvas.restore()
+    canvas.withTranslation(node.x.toFloat(), node.y.toFloat() - staticLayout.height / 2.0f) {
+      staticLayout.draw(this)
+    }
   }
 
   @SuppressLint("ClickableViewAccessibility")
