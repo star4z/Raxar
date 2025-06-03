@@ -13,9 +13,12 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.core.graphics.withTranslation
 import com.example.raxar.collection.CircularMaskedList
+import com.example.raxar.util.HALF_PI
+import com.example.raxar.util.PI
 import timber.log.Timber
-import kotlin.math.PI
 import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
 
 class GraphView : View {
 
@@ -25,7 +28,9 @@ class GraphView : View {
   private val graph: Graph
   private val nodeTextSize = 40f
   private val snapping = false
-  private val outerAngle = PI / 2
+
+  // Angle of visibility from the origin along the view center.
+  private val outerAngle = 0.6f * PI
   var adapter: GraphViewAdapter<*>? = null
     set(value) {
       field = value
@@ -66,6 +71,9 @@ class GraphView : View {
     private var values = CircularMaskedList<T>()
     var callback: (() -> Unit)? = null
 
+    /**
+     * Updates the mask size. Only accepts positive values.
+     */
     fun setMaskSize(maskSize: Int) {
       values.shiftRightMaskBound(maskSize - values.maskSize)
     }
@@ -97,13 +105,18 @@ class GraphView : View {
 
   private data class AngledNode(
     val graphIndex: Int,
-    val angle: Double,
+    val angle: Float,
     val node: Node,
     val visible: Boolean,
   )
 
   override fun onDraw(canvas: Canvas) {
     super.onDraw(canvas)
+
+    // Draw debug lines for the outer angle.
+    drawLine(canvas, Color.CYAN, outerAngle, 500f)
+    drawLine(canvas, Color.CYAN, (-outerAngle), 500f)
+
     for (node in nodes.withIndex()) {
       if (node.value.visible) {
         drawNodeWithLine(canvas, node.value.node, nodeBgPaint)
@@ -116,12 +129,14 @@ class GraphView : View {
     }
   }
 
-  private fun updateState(angleDifference: Double = 0.0) {
+  private fun updateState(angleDifference: Float = 0.0f) {
     val oldVisibleNodes = getNodes().filter { it.visible }
 
     graph.update(width, height)
 
     val newNodes = getNodes()
+    Timber.d("outerAngle=%s..%s", (-outerAngle + HALF_PI), (outerAngle + HALF_PI))
+    Timber.d("newNodes=%s", newNodes.map { "${it.angle},${it.visible}" })
     val newVisibleNodes = newNodes.filter { it.visible }
 
     if (oldVisibleNodes.isEmpty()) {
@@ -171,12 +186,21 @@ class GraphView : View {
     .map {
       val angle = getAngle(it.value)
       AngledNode(
-        it.index, angle, it.value,
-        angle in (-outerAngle + PI / 2)..(outerAngle + PI / 2)
+        it.index, angle, it.value, isNodeVisible(angle)
       )
     }
     .sortedBy { it.angle }
     .reversed()
+
+  private fun isNodeVisible(angle: Float): Boolean {
+    val lowerBound = -outerAngle + HALF_PI
+    val upperBound = outerAngle + HALF_PI
+    return if (lowerBound > 0) {
+      angle in lowerBound..upperBound
+    } else {
+      (angle in PI + lowerBound..PI) || (angle in 0f..upperBound)
+    }
+  }
 
   private fun drawNodeWithLine(
     canvas: Canvas,
@@ -184,12 +208,12 @@ class GraphView : View {
     paint: Paint,
   ) {
     canvas.drawLine(
-      graph.origin.x.toFloat(), graph.origin.y.toFloat(), node.x.toFloat(), node.y.toFloat(),
+      graph.origin.x, graph.origin.y, node.x, node.y,
       paint
     )
 
     canvas.drawCircle(
-      node.x.toFloat(), node.y.toFloat(), graph.geometricRadius.toFloat(), paint
+      node.x, node.y, graph.geometricRadius, paint
     )
   }
 
@@ -204,7 +228,7 @@ class GraphView : View {
       .setEllipsize(END)
       .setMaxLines(1)
       .build()
-    canvas.withTranslation(node.x.toFloat(), node.y.toFloat() - staticLayout.height / 2.0f) {
+    canvas.withTranslation(node.x, node.y - staticLayout.height / 2.0f) {
       staticLayout.draw(this)
     }
   }
@@ -241,7 +265,7 @@ class GraphView : View {
     }
   }
 
-  private fun getAngle(node: Node): Double {
+  private fun getAngle(node: Node): Float {
     val height = node.y - graph.origin.y
     val width = node.x - graph.origin.x
     return atan2(height, width)
@@ -250,9 +274,27 @@ class GraphView : View {
   private fun getAngle(
     x: Float,
     y: Float,
-  ): Double {
+  ): Float {
     val height = y - graph.origin.y
     val width = x - graph.origin.x
     return atan2(height, width)
+  }
+
+  private fun drawLine(
+    canvas: Canvas,
+    color: Int,
+    angle: Float,
+    length: Float,
+  ) {
+    val x = length * sin(angle)
+    val y = length * cos(angle)
+    val originX = graph.origin.x
+    val originY = graph.origin.y
+    canvas.drawLine(
+      originX, originY, originX + x, originY + y,
+      Paint().apply {
+        this.color = color
+      }
+    )
   }
 }
